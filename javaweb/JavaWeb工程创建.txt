@@ -1,0 +1,10 @@
+File -> New -> Porject.. -> Java Enterprise，勾选右边的Web Application，填好上面三个选项 -> Next
+ -> 填好工程名和保存路径
+ -> 在web/WEB-INF路径下创建 classes、lib文件夹（
+		classes保存class文件，lib保存jar文件，src写java）
+ -> shift + ctrl + alt + s（快捷键）打开Porject Settings（File -> Porject Settings）
+ -> Project Settings中选Modules -> 设置工程名下的Paths -> 将Output Path与下面的选项都
+		选中刚刚创建的classes目录
+ -> Paths旁边的Dependencies -> + -> JARs or Directories -> 选择刚刚创建的lib目录 -> Jar Directory
+ -> 菜单栏Run -> Edit Configurations -> 选择服务器（Tomcat） -> 将下方After launch选项取消
+ -> On 'Update' action、On fame deactivation都选择Update classes and resources

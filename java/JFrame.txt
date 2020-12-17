@@ -1,0 +1,42 @@
+package priv.xl.test;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class MainClass {
+
+    public static void main(String[] args) {
+        MyJFrame mjf = new MyJFrame();
+        // mjf.setSize(300, 300);
+        mjf.setTitle("Hello JFrame");
+        mjf.setExtendedState(Frame.MAXIMIZED_BOTH); // 窗口状态(窗口缩放情况)
+        // mjf.setResizable(false); /* 框架大小是否允许用户改变 */
+        // mjf.setIconImage(new ImageIcon("fileName").getImage());
+        mjf.setUndecorated(false);
+        mjf.setVisible(true);
+    }
+}
+
+class MyJFrame extends JFrame {
+
+    private static final Toolkit KIT = Toolkit.getDefaultToolkit();
+    private static final int SCREEN_WIDTH = KIT.getScreenSize().width;
+    private static final int SCREEN_HEIGHT = KIT.getScreenSize().height;
+    private static final int MIDDLE_WIDTH = SCREEN_WIDTH / 2;
+    private static final int MIDDLE_HEIGHT = SCREEN_HEIGHT / 2;
+
+    public MyJFrame() {
+        super();
+        // setLocationByPlatform(true); /* 让系统控制框架的位置 */
+        setSize(MIDDLE_WIDTH, MIDDLE_HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        // super.setSize(width, height);
+        // setLocation(MIDDLE_WIDTH - width / 2, MIDDLE_HEIGHT - height / 2);
+        setBounds(MIDDLE_WIDTH - width / 2, MIDDLE_HEIGHT - height / 2,
+                width, height);
+    }
+}

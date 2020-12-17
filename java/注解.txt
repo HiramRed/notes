@@ -1,0 +1,76 @@
+定义一个注解
+@interface 注解名{
+
+}
+引用注解
+@注解名
+
+元注解：
+@Retention 保留期
+  RetentionPolicy.SOURCE(源码阶段)
+  RetentionPolicy.CLASS(编译阶段，不加载JVM)
+  RetentionPolicy.RUNTIME(运行阶段）
+
+@Documented 将注解中的元素包含到javadoc中去
+
+@Target 目标
+  ElementType.ANNOTATION_TYPE（对注解进行注解）
+  ElementType.CONSTRUCTOR (对构造方法进行注解)
+  ElementType.FIELD (对属性)
+  ElementType.LOCAL_VARIABLE (局部变量)
+  ElementType.METHOD (方法)
+  ElementType.PACKAGE (包)
+  ElementType.PARAMETER (方法内的参数)
+  ElementType.TYPE (类型)
+
+@Inherited 如果一个超类被注解的话，子类如果没有被其他注解就继承这个注解
+
+@Repeatable 重复
+
+@Deprecated 过时
+
+@Override 重写
+
+@SuppressWarnings("") 阻止警告
+
+@SafeVarargs 参数安全
+
+@FuncationalInterface 函数式接口注释
+
+
+
+
+
+
+demo:
+
+@Retention(RetentionPolicy.RUNTIME)
+@interface TestAnnotation{
+    Test[] value();
+}
+
+@Repeatable(TestAnnotation.class)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Test{
+    String debug() default "";
+}
+
+@Test(debug = "aaa")
+@Test(debug = "bbb")
+@Test(debug = "ccc")
+public class AnnotationTest {
+    public static void main(String[] args){
+        boolean isTestAnnotation = AnnotationTest.class.isAnnotationPresent(TestAnnotation.class);
+        if(isTestAnnotation){
+            Test[] ts = AnnotationTest.class.getAnnotation(TestAnnotation.class).value();
+            for(Test t : ts){
+                System.out.println(t.debug());
+            }
+        }
+    }
+}
+
+其中：
+@Test(debug = "aaa")
+@Test(debug = "bbb")  =  @TestAnnotation({@Test(debug = "aaa"),@Test(debug = "bbb"),@Test(debug = "ccc")})
+@Test(debug = "ccc")

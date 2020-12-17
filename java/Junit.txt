@@ -1,0 +1,19 @@
+Junit
+
+Junit是xUnit的一个子集，是一套基于测试驱动开发的测试框架
+所学习的是Junit4，等内容了解后去学Junit5
+Junit可以直接在eclipse中导入
+
+创建一个 类名+Test 类
+测试方法使用public void上加一个@Test来测试
+@BeforeClass需要加static，该方法会在运行时第一个执行，且只执行一次
+@AfterClass需要加static,该方法会在运行时最后一个执行，且只执行一次
+@Before会在每个加@Test方法运行前执行
+@After会在每个加@Test方法运行后执行
+
+
+
+
+学习中的错误：
+1.报错：Junit没有被加载进JVM，由于包导错位置，虽然看上去在工程中，其实并没有
+解决方法：在BuildPath中Library导入到ClassPath中

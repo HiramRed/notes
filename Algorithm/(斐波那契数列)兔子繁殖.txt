@@ -1,0 +1,35 @@
+斐波那契数列为：0,1,1,2,3,5,8,13,21,..
+即f(0) = 0,f(1) = 1,f(2) = 1,f(x) = f(x-1) + f(x-2);
+
+非常简单的递归做法：
+public int get(int day) {
+	if (day <= 0) {
+		return 0;
+	} else if (day == 1 || day == 2) {
+		return 1;
+	} else {
+		return get(day - 1) + get(day - 2);
+	}
+}
+
+迭代法：
+public static int get(int month){
+    if(month < 0){
+        return 0;
+    }
+    int r = 1;
+    if(month == 1 || month == 2){
+        return r;
+    }
+    int t = month;
+    // y是前一个月的数列, by是前前月的数量
+    int y = 1, by = 1;
+    t -= 2;
+    while(t > 0){
+        r = y + by;
+        by = y;
+        y = r;
+        t --;
+    }
+    return r;
+}

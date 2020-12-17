@@ -1,0 +1,30 @@
+在仓库的目录下创建一个文本文档，内容自定义
+保存后将修改提交到Git版本库：
+    $ git add readme.txt
+    $ git commit -m "create file and append some words"
+可以多次添加文件，最后提交的字符串为修改说明
+注意：第一次添加修改后，之后的修改若不添加是不会被提交的
+
+查看仓库中文件修改情况：
+    $ git status
+会显示仓库当前的状态，包括了那些文件被修改过
+
+显示文件具体修改了哪些内容：
+    $ git diff readme.txt
+
+查看仓库历史修改记录：
+    $ git log
+会显示每条提交记录的ID，操作者，时间，修改说明
+显示结果精简版：
+    $ git log --pretty=oneline
+
+回退版本：
+    $ git reset --hard head^
+head表示当前版本，每加一个^表示再上一个版本，多个版本可以填写head~<数字>
+或者使用
+    $ git reset --hard <提交ID>
+
+查看历史命令记录（方便撤销操作）：
+    $ git reflog
+
+

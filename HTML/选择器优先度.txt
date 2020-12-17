@@ -1,0 +1,40 @@
+行内选择器 > id选择器 > class选择器 > link选择器
+
+head和body<style>标签中选择器属性交集取head设置的
+
+测试：
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <title>Document</title>
+    <style type="text/css">
+        .c {
+            font-size: 10px;
+        }
+        #t1 {
+            font-size: 20px;
+        }
+        #t2 {
+            font-size: 50px;
+        }
+        p {
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <style type="text/css">
+        #t1 {
+            color: red;
+            font-size: 100px;
+        }
+    </style>
+    <p class="c">10px字体</p>
+    <p class="c" style="font-size: 15px;">测试是否为15px</p>
+    <p id="t1" style="font-size: 25px">测试是否为25px字体</p>
+    <p class="c" id="t2" >测试是否为50px</p>
+    <p>30px字体</p>
+    <p style="font-size: 35px;" class="c">测试是否为35px字体</p>
+</body>
+</html>

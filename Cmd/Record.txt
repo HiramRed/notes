@@ -1,0 +1,19 @@
+nslookup    ->  DNS解析服务
+notepad     ->  记事本
+calc        ->  计算器
+mspaint     ->  画图
+devmgmt.msc ->  设备管理器
+regedit32   ->  注册表
+winver      ->  windows系统版本
+explorer    ->  打开资源管理器
+taskmgr     ->  任务管理器
+services.msc    ->  服务
+
+netstat -an     -> 查看端口使用情况
+tracert         -> 跟踪路由（数据包）
+ipconfig        -> 查看网络信息
+del, rmdir      -> 删除文件
+mkdir, md       -> 新建文件夹
+tree            -> 以树形结构显示出目录
+type <file>     -> 显示文本文件内容
+

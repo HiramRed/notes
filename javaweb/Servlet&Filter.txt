@@ -1,0 +1,25 @@
+创建Servlet类时在web.xml中注册：
+	<servlet>
+		<servlet-name>Servlet名</servlet-name>
+		<servlet-class>Servlet.class位置（包名+类名）</servlet-class>
+		<load-on-startup>数字</load-on-startup> <!-- 可选填项，用来设置servlet加载顺序 -->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Servlet名</servlet-name> <!-- 相当于申明了一个名称，给<servlet>标签的name属性用的 -->
+		<url-pattern>地址</url-pattern>	<!-- servlet监听地址，格式只能是/加地址或*加文件后缀名 -->
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>文件</welcome-file> <!-- 设置访问tomcat该web工程下第一个呈现的文件（可选项） -->
+	</welcome-file-list>
+
+创建Fileter在web.xml中注册：
+	<filter>
+		<filter-name>filter名<filter-name>
+		<filter-class>filter.class位置</filter-class>
+	</filter>
+	<filter-mapping>
+        <filter-name>filter名</filter-name>
+        <url-pattern>地址</url-pattern>
+    </filter-mapping>
+并在Filter.java文件删除注解：@WebFilter(filterName = "Filter");
+过滤器执行顺序就是web.xml的注册顺序

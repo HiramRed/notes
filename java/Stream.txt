@@ -1,0 +1,25 @@
+注：每个流从创建开始，只要调用它的方法就关闭了，无法使用第二次
+
+创建流：
+Arrays.stream(T t...);
+Arrays.stream(T[]);
+
+List实例的.stream和parallelStream方法
+
+Stream.of(T t...);
+Stream.of(T t);
+
+
+流的方法：
+Stream.empty() // 返回空流
+Stream.generate(Supplier<T> s) // 调用Suppiler的方法创建无限流
+Stream.iterate(final T seed, final UnaryOperator<T> f) // 通过种子和计算公式创建无限流
+Stream.concat(Stream<? extends T> a, Stream<? extends T> b)) // 连接两个未被使用的流
+filter(Predicate<? super T> predicate) // 过滤
+map(Function<? super T, ? extends R> mapper) // 对stream中的所有元素做处理，返回stream
+flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) // 同上，最后做并集操作
+limit(long maxSize) // 返回限定长度的stream
+skip(long n) // 返回除了前面几个元素的stream
+distinct() // 返回元素不重复的流
+sorted() // 返回排序后的流
+peek(Consumer<? super T> action) // 获取流的每一个元素

@@ -1,0 +1,13 @@
+在AndroidManifest.xml中添加：
+    <uses-permission android:name="android.permissio.VIBRATE" />
+
+java代码实现：
+    Vibrator v = (Vibrator) this.getSystemService(this.VIBRATOR_SERVICE);
+    vibrator.vibrate(1000);     // 震动1000ms
+
+循环震动：
+    long[] patter = {500, 500, 500, 500);
+    // 数组[0]表示静止时间,[1]表示振动时间，以此类推
+    // 第二个参数0表示下一次循环从[0]开始，-1表示不循环
+    v.vibrate(patter, 0);
+    // v.cancel();     // 取消震动

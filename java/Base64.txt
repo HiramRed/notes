@@ -1,0 +1,293 @@
+Base64编码是将目标字节数组以三个字节一组，将3x8字拆分成4x6字并转换成Base64字符
+
+举例：
+
+"Man".getBytes() = [77, 97, 120];
++--------+--------+---------+
+|   77   |   97   |   120   | // "Man"的字节
++--------+--------+---------+
+|01001101|01100001|01111000 | // 转换成二进制 3x8
++------+------+------+------+
+|010011|010110|000101|111000| // 拆分 4x6
++------+------+------+------+
+|  T   |  W   |  F   |  4   | // 查Base64索引表
++------+------+------+------+
+
+Base64索引表：
+数值	字符	 	数值	字符	 	数值	字符	 	数值	字符
+0	A		16	Q		32	g		48	W
+1	B		17	R		33	h		49	x
+2	C		18	S		34	i		50	y
+3	D		19	T		35	j		51	z
+4	E		20	U		36	k		52	0
+5	F		21	V		37	l		53	1
+6	G		22	W		38	m		54	2
+7	H		23	X		39	n		55	3
+8	I		24	Y		40	o		56	4
+9	J		25	Z		41	p		57	5
+10	K		26	a		42	q		58	6
+11	L		27	b		43	r		59	7
+12	M		28	c		44	s		60	8
+13	N		29	d		45	t		61	9
+14	O		30	e		46	u		62	+
+15	P		31	f		47	v		63	/
+
+若字节数组长度不能被3整除，多出来1、2个字节，则在无法组成6个字的末尾添加0，空白字节转换成'='
+
+举例：
+"A".getBytes() = [65];
++--------+--------+---------+
+|   65   |		  |			| // "A"的字节
++--------+--------+--- -----+
+|01000001|        |			| // 二进制
++------+------+------+------+
+|010000|010000|      |      | // 拆分成4x6，不完整的组合末未添加0
++------+------+------+------+
+|  Q   |  Q   |  =   |  =   | // 查Base64表，没有值的添'='
++------+------+------+------+
+
+"AB".getBytes() = [65, 66];
++--------+--------+---------+
+|   65   |   66   |         |
++--------+--------+---------+
+|01000001|01000010|			|
++------+------+------+------+
+|010000|010100|001000|		|
++------+------+------+------+
+|  Q   |  U   |  I   |  =   |
++------+------+------+------+
+
+
+编码：
+private static final char[] base64Table = {
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+};
+
+public static String encodeToString(byte[] buf) {
+    return new String(encode(buf));
+}
+
+private static byte[] encode(byte[] buf) {
+    int tlen = Math.multiplyExact(	// 字节数组编码后的数组长度
+            4, Math.addExact(buf.length, 2) / 3);
+    int len = buf.length / 3 * 3;   // 字节数组能被3整除的长度
+    int i = 0; // 遍历buf
+    int k = 0; // 遍历dst
+    byte[] dst = new byte[tlen];
+    while(i < len) {
+    	// 每三组字节存入int
+        int bits = (buf[i ++] & 0xff) << 16 |
+                   (buf[i ++] & 0xff) << 8  |
+                   (buf[i ++] & 0xff);
+        // 将值参照base64索引表存入dst
+        dst[k ++] = (byte) base64Table[(bits >>> 18) & 0x3f];
+        dst[k ++] = (byte) base64Table[(bits >>> 12) & 0x3f];
+        dst[k ++] = (byte) base64Table[(bits >>> 6)  & 0x3f];
+        dst[k ++] = (byte) base64Table[bits & 0x3f];
+    }
+    if(i < buf.length) { // 若数组不能被3整除
+        dst[k ++] = (byte) base64Table[(buf[i] & 0xff) >> 2];
+        int b = (buf[i ++] & 0x03) << 4; // 先保存第一个字节的低二位
+        if(i < buf.length) {
+            dst[k ++] = (byte) base64Table[b | ((buf[i] & 0xff) >>> 4)];
+            dst[k ++] = (byte) base64Table[(buf[i] & 0x0f) << 2];
+            dst[k ++] = '=';
+        } else {
+            dst[k ++] = (byte) base64Table[b];
+            dst[k ++] = '=';
+            dst[k ++] = '=';
+        }
+    }
+    return dst;
+}
+
+同样可以调用jdk库：Base64.getEncoder().encodeToString(byte[] a);
+库效率最高，因为算法使用jvm调用cpu指令集实现
+
+解码：
+private static final int[] fromBase64Table = new int[128];
+
+static { // 生成base64参照表，空余部分由-1填补('='将表示-1)
+	Arrays.fill(fromBase64Table, -1);
+	for(int i = 0; i < base64Table.length; i ++) {
+		fromBase64Table[base64Table[i]] = i;
+	}
+}
+
+public static byte[] decode(byte[] buf) {
+	int i = 0; // buf索引
+    int k = 0; // dst索引
+    int newLen = Math.multiplyExact(3, buf.length / 4); // 解码后预留大小
+    int len = buf.length / 4 * 4; // 只解码能组成四组的字节
+    byte[] dst = new byte[newLen];
+    while(i < len) {
+        int bit1 = fromBase64Table[buf[i ++] & 0xff];
+        int bit2 = fromBase64Table[buf[i ++] & 0xff];
+        int bit3 = fromBase64Table[buf[i ++] & 0xff];
+        int bit4 = fromBase64Table[buf[i ++] & 0xff];
+        if((bit1 | bit2 | bit3 | bit4) < 0) { // 若包含'='
+            dst[k ++] = (byte) ((bit1 << 2) | (bit2 >> 4));
+            if(bit3 != -1) { // 若末尾只有一个'='(编码前的字节数组长度多出2位)
+                dst[k ++] = (byte) (((bit2 & 0x0f) << 4) | (bit3 >> 2));
+            }
+            break;
+        }
+        int bits = bit1 << 18 | bit2 << 12 | bit3 << 6 | bit4;
+        dst[k ++] = (byte) (bits >> 16);
+        dst[k ++] = (byte) (bits >> 8);
+        dst[k ++] = (byte) (bits);
+    }
+    return Arrays.copyOf(dst, k); // 防止因'='造成的解码后数组有空位
+}
+
+同样有jdk库：Base64.getDecoder().decode(byte[] a);
+效率不好说，最好还是按照库的来
+
+
+测试代码：
+
+package priv.xl.test;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.Base64;
+
+public class MainClass {
+    private static final char[] base64Table = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+    };
+
+    private static final int[] fromBase64Table = new int[128];
+
+    static {
+        Arrays.fill(fromBase64Table, -1);
+        for(int i = 0; i < base64Table.length; i ++) {
+            fromBase64Table[base64Table[i]] = i;
+        }
+    }
+
+    public static void main(String[] args) {
+        byte[] buf = readFile("C:\\Users\\Administrator\\Desktop\\602147.txt");
+        if(buf.length < 1) {
+            System.out.println("读取文件长度为0");
+            return;
+        }
+        Watch w = new Watch();
+        Base64.Encoder e = Base64.getEncoder();
+        Base64.Decoder d = Base64.getDecoder();
+        byte[] encodeBuf;
+        System.out.println("mine encode: " + w.testTime(() -> {encode(buf);}));
+        System.out.println("java encode: " + w.testTime(() -> {e.encode(buf);}));
+        encodeBuf = e.encode(buf);
+        System.out.println("mine decode: " + w.testTime(() -> {decode(encodeBuf);}));
+        System.out.println("java decode: " + w.testTime(() -> {d.decode(encodeBuf);}));
+    }
+
+    private static byte[] readFile(String path) {
+        BufferedInputStream bufIn = null;
+        FileInputStream fIn = null;
+        ByteArrayOutputStream fileBuf = new ByteArrayOutputStream();
+        try {
+            fIn = new FileInputStream(path);
+            bufIn = new BufferedInputStream(fIn);
+            int len;
+            while((len = bufIn.read()) != -1) {
+                fileBuf.write(len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fIn != null) {
+                try {
+                    fIn.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return fileBuf.toByteArray();
+    }
+
+    private static byte[] decode(byte[] buf) {
+        int i = 0;
+        int k = 0;
+        int newLen = Math.multiplyExact(3, buf.length / 4);
+        int len = buf.length / 4 * 4;
+        byte[] dst = new byte[newLen];
+        while(i < len) {
+            int bit1 = fromBase64Table[buf[i ++] & 0xff];
+            int bit2 = fromBase64Table[buf[i ++] & 0xff];
+            int bit3 = fromBase64Table[buf[i ++] & 0xff];
+            int bit4 = fromBase64Table[buf[i ++] & 0xff];
+            if((bit1 | bit2 | bit3 | bit4) < 0) {
+                dst[k ++] = (byte) ((bit1 << 2) | (bit2 >> 4));
+                if(bit3 != -1) {
+                    dst[k ++] = (byte) (((bit2 & 0x0f) << 4) | (bit3 >> 2));
+                }
+                break;
+            }
+            int bits = bit1 << 18 | bit2 << 12 | bit3 << 6 | bit4;
+            dst[k ++] = (byte) (bits >> 16);
+            dst[k ++] = (byte) (bits >> 8);
+            dst[k ++] = (byte) (bits);
+        }
+        return Arrays.copyOf(dst, k);
+    }
+
+    private static String encodeToString(byte[] buf) {
+        return new String(encode(buf));
+    }
+
+    private static byte[] encode(byte[] buf) {
+        int tlen = Math.multiplyExact(
+                4, Math.addExact(buf.length, 2) / 3);
+        int len = buf.length / 3 * 3;
+        int i = 0;
+        int k = 0;
+        byte[] dst = new byte[tlen];
+        while(i < len) {
+            int bits = (buf[i ++] & 0xff) << 16 |
+                       (buf[i ++] & 0xff) << 8  |
+                       (buf[i ++] & 0xff);
+            dst[k ++] = (byte) base64Table[(bits >>> 18) & 0x3f];
+            dst[k ++] = (byte) base64Table[(bits >>> 12) & 0x3f];
+            dst[k ++] = (byte) base64Table[(bits >>> 6)  & 0x3f];
+            dst[k ++] = (byte) base64Table[bits & 0x3f];
+        }
+        if(i < buf.length) {
+            dst[k ++] = (byte) base64Table[(buf[i] & 0xff) >> 2];
+            int b = (buf[i ++] & 0x03) << 4;
+            if(i < buf.length) {
+                dst[k ++] = (byte) base64Table[b | ((buf[i] & 0xff) >>> 4)];
+                dst[k ++] = (byte) base64Table[(buf[i] & 0x0f) << 2];
+                dst[k ++] = '=';
+            } else {
+                dst[k ++] = (byte) base64Table[b];
+                dst[k ++] = '=';
+                dst[k ++] = '=';
+            }
+        }
+        return dst;
+    }
+}
+
+class Watch {
+
+    public long testTime(Runnable run) {
+        long s = getTime();
+        run.run();
+        return getTime() - s;
+    }
+
+    public long getTime() {
+        return System.nanoTime();
+    }
+}

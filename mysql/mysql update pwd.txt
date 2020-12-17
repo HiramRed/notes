@@ -1,0 +1,20 @@
+﻿若发生意外，强制修改密码操作：
+
+在my.ini的[mysqld]下加上skip-grant-tables
+
+重启mysql服务:
+
+net stop mysql
+net start mysql
+
+重启后cmd执行mysql -uroot -p登录
+
+cmd执行：
+
+use mysql;
+
+update user set authentication_string = password('新的密码') where user = 'root';
+
+注意：如果执行修改密码命令报错，执行后报错 ERROR 1054(42S22) Unknown column 'authentication_string' in ‘field list’ ，将authentication_string改成password
+
+去掉my.ini中的skip-grant-tables字段，重启mysql

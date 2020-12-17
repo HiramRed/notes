@@ -1,0 +1,71 @@
+a = b 是将b的内存地址赋给a，之后a与b共享一个内存空间
+所以=操作是赋值内存地址，而不是值
+
+基本类型(int,float,double,byte,short,char...)不算类，而数组形式(int[],byte[])算
+
+对数组操作如：
+int[] arr1 = new int[]{1,2,3,4};
+int a = arr1[0]; //将arr1[0]的内存地址与a共享
+a = 0; //arr[0]的值不会发生改变，而是重新生成一个值为0的int内存空间，将值赋给a
+
+与之区分的：
+class User{
+    private String name;
+    private int id;
+
+    public User(String name,int id){
+        this.name = name;
+        this.id = id;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public int getId(){
+        return id;
+    }
+
+    public String toString(){
+        return "id=" + id + "&name=" + name;
+    }
+}
+
+public void set(User[] us){
+	User u = us[0];
+	u.setName("Hello");
+}
+
+public void main(){
+	User[] us = new User[]{new User("a", 1), new User("b", 2)};
+
+	set(us);
+
+	for(User u : us){
+		System.out.println(u);
+	}
+}
+us[0]的内部值是会改变的，因为改变的只是内部值的内存地址，不影响对象内存地址
+
+
+包括return关键字，因为只要是值的传递，那肯定只能是内存地址的，所以return返回内存地址
+
+还有一个，我们在读取io时常常这么写：
+InputStream in = new FileInputStream("...");
+ByteArrayOutputStream bufOs = new ByteArrayOutputStream();
+byte[] buf = new byte[128];
+int len;
+while((len = in.read(buf)) != -1){
+	bufOs.write(buf, 0, len);
+}
+byte[] strBuf = bufOs.toArray();
+String content = new String(strBuf, 0, strBuf.len);
+这里的(len = in.read(buf))，因为=是运算符号（以前经常把它当成单独的赋值符号。。），
+将in.read(buf)得到的返回值的内存地址赋给len，括号内的值就变成了len的内存地址。
+
+==符号也是对比内存地址，这应该在初学.equals()时就了解了。
+除非new，否则只要对象引用与其他对象引用值相同时，共享一个内存地址

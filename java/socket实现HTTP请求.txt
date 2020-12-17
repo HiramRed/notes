@@ -1,0 +1,25 @@
+Socket socket = new Socket();
+socket.connect(new InetSocketAddress("127.0.0.1", 8080));
+
+BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
+StringBuffer sb = new StringBuffer();
+
+sb.append("GET /javaweb_war_exploded/welcome.jsp HTTP/1.1\r\n"); // POST请求则把GET修改成POST
+sb.append("HOST:localhost:8080\r\n"); // HOST一定要加
+
+// sb.append("Content-Type:application/x-www-form-urlencoded\r\n"); 
+// 如果是POST请求，有请求体的话需要添加合适的文件格式
+
+// sb.append("Content-Length:7\r\n"); // 若有请求体，填写请求体长度
+sb.append("\r\n"); // 请求头结束后的一行空格，隔开请求体
+// sb.append("name=xl"); // 请求体
+
+bufOut.write(sb.toString().getBytes("utf-8"));
+bufOut.flush();
+socket.shutdownOutput();
+
+BufferedInputStream bufIn = new BufferedInputStream(socket.getInputStream());
+String s = new String(bufIn.readAllBytes(), "utf-8");
+socket.shutdownInput();
+
+System.out.println(s);

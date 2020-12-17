@@ -1,0 +1,99 @@
+Vector可以算是ArrayList的线程安全版，只不过每次扩容都为目前大小的一倍
+
+字段：
+
+public class Vector<E>
+    extends AbstractList<E>
+    implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+{
+
+    protected Object[] elementData; // 缓存
+
+    protected int elementCount; // 缓存数据大小
+
+    protected int capacityIncrement; // 自定义的扩容数量
+
+    private static final long serialVersionUID = -2767605614048989439L;
+
+    ...
+}
+
+构造方法：
+public Vector(int initialCapacity, int capacityIncrement) {
+    super(); // 啥也不执行
+    if (initialCapacity < 0)
+        throw new IllegalArgumentException("Illegal Capacity: "+
+                                           initialCapacity);
+    this.elementData = new Object[initialCapacity];
+    this.capacityIncrement = capacityIncrement;
+}
+
+public Vector(int initialCapacity) {
+    this(initialCapacity, 0);
+}
+
+public Vector() {
+    this(10);
+}
+
+先说说与ArrayList不相同的地方：
+
+private Object[] grow(int minCapacity) {
+    int oldCapacity = elementData.length;
+    int newCapacity = ArraysSupport.newLength(oldCapacity,
+            minCapacity - oldCapacity, /* 最小扩容大小 */
+            // 若自定义扩容大小为正整数，则期望扩容自定义大小，否则为当前容量的一倍
+            capacityIncrement > 0 ? capacityIncrement : oldCapacity);
+    return elementData = Arrays.copyOf(elementData, newCapacity);
+}
+
+public synchronized int capacity() { // 返回缓存区大小
+    return elementData.length;
+}
+
+public synchronized void copyInto(Object[] anArray) {
+	// 将缓存区数据部分拷贝到参数中，注意没检测null和参数长度
+    System.arraycopy(elementData, 0, anArray, 0, elementCount);
+}
+
+public Enumeration<E> elements() { // 只能遍历集合的值，对比Iterator少了一些判断
+    return new Enumeration<E>() {
+        int count = 0;
+
+        public boolean hasMoreElements() {
+            return count < elementCount;
+        }
+
+        public E nextElement() {
+            synchronized (Vector.this) {
+                if (count < elementCount) {
+                    return elementData(count++);
+                }
+            }
+            throw new NoSuchElementException("Vector Enumeration");
+        }
+    };
+}
+
+public synchronized void setSize(int newSize) {
+    modCount++;
+    if (newSize > elementData.length)
+        grow(newSize);
+    final Object[] es = elementData;
+    // 使用null将缓存区填充至newSize大小
+    for (int to = elementCount, i = newSize; i < to; i++)
+        es[i] = null;
+    elementCount = newSize;
+}
+
+
+Vector与ArrayList使用方法相似，不过Vector终会调用带Element的方法名
+void addElement(E)
+elementAt(int)
+firstElement()
+lastElement()
+removeElement(Object)
+removeElementAt(int)
+...
+
+set没有

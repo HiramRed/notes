@@ -1,0 +1,4 @@
+:set encoding	-> 查看文本编码
+:set fenc=	-> 转换当前文本为指定编码
+:set enc=	-> 显示当前文本为指定编码
+:e ++enc=utf-8	-> 以utf-8编码方式重新加载文件

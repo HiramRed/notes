@@ -1,0 +1,54 @@
+Camera为android.hardward包下
+
+public class CameraActivity extends AppCompatActivity
+        implements TextureView.SurfaceTextureListener {
+    
+    private TextureView view_camera;
+    private Camera camera;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // setContentView(R.layout.activity_camera);
+        init();
+    }
+
+    private void init() {
+        view_camera = new TextureView(this);
+        view_camera.setSurfaceTextureListener(this);
+        setContentView(view_camera);
+    }
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        camera = Camera.open();
+        Camera.Size size = camera.getParameters().getPreviewSize();
+        view_camera.setLayoutParams(
+                new FrameLayout.LayoutParams(size.width, size.height, Gravity.CENTER));
+        try {
+            camera.setPreviewTexture(surface);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        camera.startPreview();
+        view_camera.setAlpha(1.0f);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        Log.d("CameraActivity-->camera", "shutdown");
+        camera.stopPreview();
+        camera.release();
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
+}

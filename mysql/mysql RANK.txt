@@ -1,0 +1,80 @@
+假设有下表，且数据全部填好
+CREATE TABLE SCORE (
+	stu_id 		SMALLINT		NOT NULL, -- 学生号
+	c_id		SMALLINT		NOT NULL, -- 课程号
+	sc_score	VARCHAR(10)				  -- 成绩
+);
+
+-- RANK普通排序
+SELECT 	stu_id, c_id
+		, @curRank := @curRank + 1 AS 'rank'
+FROM	score, (
+			SELECT @curRank := 1
+			) a
+WHERE	c_id = '01'
+ORDER BY sc_score DESC
+
+-- RANK普通并列排序
+SELECT 	stu_id, c_id 
+		, CASE
+			WHEN @prevRank = sc_score  
+				THEN @curRank
+			WHEN @prevRank := sc_score 
+				THEN @curRank := @curRank + 1
+		END	AS 'rank'
+FROM	score, (
+			SELECT @curRank := 0, @prevRank := NULL
+			) a
+WHERE 	c_id = '01'
+ORDER BY sc_score DESC
+
+-- RANK高级并列排序(建议子查询)
+SELECT	stu_id, c_id
+		, @curRank  := IF(@prevRank = sc_score,@curRank,@incRank) AS 'rank'
+		, @incRank  := @incRank + 1
+		, @prevRank := sc_score
+FROM 	score, (
+			SELECT @prevRank := NULL, @curRank = 0
+				 , @incRank  := 1
+			) a
+WHERE 	c_id = '01'
+ORDER BY sc_score
+
+
+-- update  2019-11-15-14:37
+CREATE TABLE person (
+    id INT NOT NULL PRIMARY KEY,
+    firstname VARCHAR(10),
+    gender VARCHAR(1),
+    age INT
+);
+
+INSERT INTO person (id, firstname, gender, age) VALUES
+(1,  'Adams',  'M', 33),
+(2,  'Matt',   'M', 31),
+(3,  'Grace',  'F', 25),
+(4,  'Harry',  'M', 20),
+(5,  'Scott',  'M', 30),
+(6,  'Sarah',  'F', 30),
+(7,  'Tony',   'M', 30),
+(8,  'Lucy',   'F', 27),
+(9,  'Zoe',    'F', 30),
+(10, 'Megan',  'F', 26),
+(11, 'Emily',  'F', 20),
+(12, 'Peter',  'M', 20),
+(13, 'John',   'M', 21),
+(14, 'Kate',   'F', 35),
+(15, 'James',  'M', 32),
+(16, 'Cole',   'M', 25),
+(17, 'Dennis', 'M', 27),
+(18, 'Smith',  'M', 35),
+(19, 'Zack',   'M', 35),
+(20, 'Jill',   'F', 25);
+
+SELECT person.*,CASE
+    WHEN @partval = gender AND @rankval = age THEN @rank
+    WHEN @partval = gender AND (@rankval := age) IS NOT NULL THEN @rank := @rank + 1
+    WHEN (@partval := gender) IS NOT NULL AND (@rankval := age) IS NOT NULL THEN @rank := 1
+END AS rnk
+FROM person, (SELECT @rank := 1, @partval := NULL, @rankval := NULL) AS x
+ORDER BY gender, age;

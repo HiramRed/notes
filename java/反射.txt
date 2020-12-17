@@ -1,0 +1,35 @@
+﻿概念：将java类中每一个成员都反映成一个个java对象（成员变量、构造方法、方法、包、类名等）
+将java类经过编译生成的.class字节码读入内存，创建一个Class对象
+注：每一个类的Class对象在内存中有且只会有一个
+
+获取Class对象方法
+1.
+    try{
+        Class.forName("包名.类名");
+    }
+2.
+    类名.class
+3.
+    对象.getClass();
+
+
+获取构造方法、属性、方法：
+所有get后加Declared可以获取private、protected的该class内部所有方法，setAccessible(true)方法可以操作无法访问的甚至final的值
+Class test_class = Class.forName("priv.xl.test.TestClass");
+
+Constructor[] constructors = test_class.getConstructors();（获取所有public修饰的构造方法）
+Constructor constructor = test_class.getConstructor(Type... );(获取每种传值类型为Type...的构造方法）
+Field[] fields = test_class.getFields();
+Field field = test_class.getField("属性名");
+Method[] Methods = test_class.getMethods();
+Method Method = test_class.getMethod("方法名",Type...);
+
+
+调用构造方法、方法，修改属性
+constructor.newInstance("参数");  相当于传参数给相应的构造方法，返回该类的Object实例
+field.set("该class的一个实例","值");
+method.invoke("该class的一个实例","参数");  该方法会有相应的返回值
+
+
+
+

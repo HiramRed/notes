@@ -1,0 +1,113 @@
+﻿1.操作数据库：CRUD
+    1.C(Create)：创建
+	* 若数据库不存在，创建并修改数据库字符集
+	    * create database if not exists 数据库名称 character set 字符集名称;
+
+    2.R(Retrieve)：查询
+	* 查询所有数据库的名称
+	    * show databases;
+	* 查询某个数据库的字符集；查询某个数据库的创建语句
+ 	    * show create database 数据库名称;
+	* 查询数据库存储引擎
+	    * show engines;
+
+    3.U(Update)：修改
+	* 修改数据库的字符集
+	    * alter database 数据库名称 character set 字符集名称;
+
+    4.D(Delete)：删除
+	* 若数据库存在，删除数据库
+	    * drop database if exists 数据库名称;
+
+    5.使用数据库
+	* 查询当前正在使用的数据库名称
+	    * select database();
+	* 使用数据库
+	    * use 数据库名称;
+
+
+2.操作表
+    1.C(Create)：创建
+	* 语法：
+	    create table 表名(
+		属性1 数据类型1 [完整约束条件],
+		属性2 数据类型2 [完整约束条件],
+		...,
+		属性n 数据类型n [完整约束条件]
+	    );
+	    * 最后一列不需要加逗号
+	    * 约束条件:
+		1. primary key：标识该属性为该表的主键，可以唯一的标识对应的元组
+		2. foreign key：标识该属性为该表的外键，是与之联系某表的主键
+		3. not null：标识该属性不能为空
+		4. unique：标识该属性的值是唯一的
+		5. auto_increment：标识该属性的值是自动增加，这是mysql的sql语句的特色
+		6. default：为该值属性设置默认值
+ 	    * 数据库类型：
+		1. int
+		    * age int,
+		2. double
+		    * score double(3,1), //精确到千位，小数点后一位
+	 	3. date：日期，只包含年月日，yyyy-MM-dd
+		4. datetime：日期，包含年月日时分秒 yyyy-MM-dd HH:mm:ss
+		5. timestamp：时间戳类型，包含年月日时分秒 yyyy-MM-dd HH:mm:ss
+		    * 与datettime区别在于若不给该字段赋值或赋值为null，该字段默认使用当前系统时间，自动赋值
+		6. varchar：字符串
+		    * name varchar(20)：姓名最大20个字符
+
+	* 创建表
+	    create table fun (
+		uid varchar(9) not null unique,
+		...
+		primary key(uid);
+	    );
+	        * 上表只是为下面演示外键创建的，只是个例子
+
+	    create table dbtest1 (
+		uid varchar(9) not null unique,
+		userName varchar(11) not null unique,
+		userPwd varchar(30) not null,
+		userPost varchar(25) unique,
+		userPhone varchar(15) unique,
+		sex varchar(2) default '男',
+		primary key(id,uid),
+		constraint keyName foreign key(uid) references fun(uid)
+	    );
+		* 最后两行分别为设置主键和外键，keyName为外键名
+
+	* 复制表
+	    * create table 表名 like 被复制的表名;
+		
+    2.R(Retrieve)：查询
+	* 查询某个数据库中所有的表名称
+	    * show tables;
+ 	* 查询表结构
+	    * desc 表名;;
+	* 查询表详细定义（可查看默认存储引擎和字符编码）
+	    * show create table 表名;
+
+    3.U(Update)：修改
+	* 修改表名
+	    * alter table 表名 rename 新表名;
+	* 修改字段的数据类型
+ 	    * alter table 表名 modify 属性名 数据类型;
+	* 修改字段名：
+	    * alter table 表名 change 旧属性名 新属性名 新数据类型;
+	* 添加字段
+	    * alter table 表名 add 属性名1 数据类型 [完整性约束条件] [first | after 属性名2];
+		* '属性名1'为添加的字段的名称
+		* first参数是可选参数，可将新增字符段设置为表的第一个字段
+		* after参数也是可选参数，可将新增字段添加到'属性2'后
+		* '属性2'为表中已有字段
+	* 修改表的存储引擎
+	    * alter table 表名 engine = 存储引擎名;
+	* 修改表的字符集
+	    * alter table 表名 character set 字符集名称;
+
+    4.D(Delete)：删除
+	* 删除字段
+	    * alter table 表名 drop 属性名;
+	* 删除表的外键约束
+	    alter table 表名 drop foreign key 外键名;
+	* 删除表（判断是否存在）
+	    drop table if exists 表名;

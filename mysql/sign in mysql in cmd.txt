@@ -1,0 +1,3 @@
+﻿执行cmd:
+
+mysql -u root -p

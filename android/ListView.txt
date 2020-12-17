@@ -1,0 +1,51 @@
+继承ArrayAdapter或者BaseAdapter(推荐)
+主要重写getView方法：
+    public View getView(int position, View convertView, ViewGroup parent) {
+        Model m = (Model) getItem(position);
+        View v;
+        ViewHolder holder;
+        if(convertView == null) {
+            v = inflater.inflate(resourceId, parent, false);
+            holder = new ViewHolder();
+            holder.img = v.findViewById(R.id.img);
+            holder.txt = v.findViewById(R.id.txt);
+            v.setTag(holder);
+        } else {
+            v = converView;
+            holder = (ViewHolder) v.getTag();
+        }
+        holder.txt.setText(m.getText());
+        holder.img.setImageResource(m.getImgId());
+        return v;
+    }
+
+    class ViewHolder {
+        TextView txt;
+        ImageView img;
+    }
+
+
+构造方法：
+    public class MyBaseAdapter extends BaseAdapter {
+        private List objects;
+        private LayoutInflater inflater;
+        private int resourceId;
+
+        public MyBaseAdapter(Context context, int resourceId, List objects) {
+            this.objects = objects;
+            inflater = LayoutInflater.from(context);
+            this.resourceId = resourceId;
+        }
+
+        public int getCount() {
+            return objects.size();
+        }
+
+        public Object getItem(int position) {
+            return objects.get(position);
+        }
+
+        public long getItemId(int position) {
+            return position;
+        }
+    }

@@ -1,0 +1,70 @@
+﻿约束
+    * 概念：对表中的数据进行限定，保证数据的正确性、有效性和完整性
+    * 分类：
+	* 主键约束：primary key
+	* 非空约束：not null
+	* 唯一约束：unique
+	* 外键约束：foreign key
+
+    * 非空约束：not null
+	* 创建表时添加约束
+
+	* 创建表完后，添加非空约束
+	    * alter table 表名 modify 属性名 类型 not null;
+
+	* 删除非空约束
+	    * alter table 表名 modify 属性名 类型;
+
+    * 唯一约束：unique，值不能重复
+	* 创建表时，添加唯一约束
+
+	* 删除唯一约束
+	    * alter table 表名 drop index 属性名;
+
+	* 创建表后，添加唯一约束
+	    * alter table 表名 modify 属性名 类型 unique;
+
+    * 主键约束：primary key
+	* 注意
+	    * 含义：非空且唯一
+	    * 一张表只能有一个字段为主键
+	    * 主键就是表中记录的唯一标识
+
+	* 在创建表时，添加主键约束
+	
+	* 删除主键
+	    * alter table 表名 drop primary key;
+
+	* 创建完表后，添加主键
+	    * alter table 表名 modify 属性名 类型 primary key;
+
+	* 自动增长：
+	    * 概念：如果某一列是数值类型的，使用auto_increment可以完成值的自动增长
+
+	    * 在创建表时，添加主键约束，并且完成主键自动增长
+
+	    * 删除自动增长
+		* alter table 表名 modify 属性名 类型;
+
+	    * 添加自动增长
+		* alter table 表名 modify 属性名 类型 auto_increment;
+
+    * 外键约束
+	* 在创建表时，可以添加外键
+	    * constraint 外键名 foreign key (外键列名称) references 主表 (主表列名称)
+
+	* 删除外键
+	    * alter table 表名 drop foreign key 外键名称;
+
+	* 创建表之后，添加外键
+	    * alter table 表名 add constraint 外键名 foreign key (外键列名) references 主表 (主表列名);
+
+    * 级联操作
+	* 添加级联操作
+	    * alter table 表名 add constraint 外键名称
+		foreign key (外键列名称) references 主表名 (主表列名)
+		    on update cascade on delete cascade;
+
+	* 分类：
+	    * 级联更新：on update cascade;
+	    * 级联删除：on delete cascade;

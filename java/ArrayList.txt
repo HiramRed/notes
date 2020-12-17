@@ -1,0 +1,562 @@
+持续更新。。
+
+create: 2019-12-3
+
+本次不研究继承问题，单单研究内部方法实现
+ArrayList通过封装一个Object[]对象存储元素（数据），和一个size保存元素数量
+
+贴原码：
+	public class ArrayList<E> extends AbstractList<E>
+	        implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+	{
+	    private static final long serialVersionUID = 8683452581122892189L;
+
+	    private static final int DEFAULT_CAPACITY = 10; //默认初始容量
+
+	    private static final Object[] EMPTY_ELEMENTDATA = {}; //用于共享空数组的实例。
+		
+		/**
+		 * 用于共享默认容量数组的实例？这我没怎么搞懂，文档注释的意思是
+		 * 与EMPTY_ELEMENTDATA区分开来，以知道当添加第一个元素的时候需要扩充多少？？？
+		 * 那既然是默认容量的实例为啥不用Object[10]来声明？
+		 */
+	    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+		/**
+		 * 存储ArrayList元素的数组缓冲区
+		 * ArrayList的容量就是缓冲区的长度(.length)
+		 * 任何空的ArrayList(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA)在添加元素时，
+		 * 容量将被拓展到默认初始容量
+		 * 没有被设置成私有，方便需要的类访问
+		 */
+	    transient Object[] elementData;
+
+	    private int size; //元素数量
+		
+		...
+	}
+
+
+再看看构造方法：
+	/*
+	 * case initialCapacity > 0:
+	 *		设置指定容量
+	 * case initialCapacity == 0:
+	 * 		设置默认容量
+	 * else
+	 *		传入的为负数，抛出异常
+	 */
+	public ArrayList(int initialCapacity) {
+	    if (initialCapacity > 0) {
+	        this.elementData = new Object[initialCapacity];
+	    } else if (initialCapacity == 0) {
+	        this.elementData = EMPTY_ELEMENTDATA;
+	    } else {
+	        throw new IllegalArgumentException("Illegal Capacity: "+
+	                                           initialCapacity);
+	    }
+	}
+
+	public ArrayList() {
+	    this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA; //设置默认容量
+	}
+
+	public ArrayList(Collection<? extends E> c) {
+	    elementData = c.toArray();	//获取传入集合的缓冲区副本
+	    if ((size = elementData.length) != 0) {
+	    	// 为了防止Collection的子类覆盖toArray()方法并设置非Object[]的返回值
+	    	// 需要对获取的缓冲区副本强行转换成Object[]
+	        if (elementData.getClass() != Object[].class)
+	            elementData = Arrays.copyOf(elementData, size, Object[].class);
+	    } else {
+	        // 因为传进来的缓冲区为空(非null)，所以设置ArrayList缓冲区为空
+	        this.elementData = EMPTY_ELEMENTDATA;
+	    }
+	}
+
+ArrayList实例化可指定大小，或者传入一个已有的集合，否则elementData为默认容量
+
+以下几个常用方法实现看源码秒懂：
+	public int size() {
+	    return size;
+	}
+
+	public boolean isEmpty() {
+	    return size == 0;
+	}
+
+	public Object[] toArray(){
+		// 返回缓冲区的副本，长度为ArrayList数据长度
+		return Arrays.copyOf(elementData, size);
+	}
+
+	/**
+	 * 清除缓冲区所有数据，size回到0
+	 */
+	public void clear() {
+        modCount++;
+        final Object[] es = elementData;
+        for (int to = size, i = size = 0; i < to; i++)
+            es[i] = null;
+    }
+
+多的不列举了，以下说一些ArrayList的算法：
+多数学者初学List常用的方法有add()、remove()、indexOf()、clear()、contains()..
+ArrayList是一个顺序的集合，每次add一个新元素，都添加在Object[]末尾
+而且元素容量是动态的，会在容量不够时扩容
+每次扩容自身容量的一半((elementData.length >> 1) + elementData.len)
+先看看add()：
+
+    public boolean add(E e) {
+        modCount++; //下方会讲解
+        add(e, elementData, size);
+        return true;
+    }
+
+而这里的add(e, elementData, size)是ArrayList内部添加元素的通用方法：
+
+    private void add(E e, Object[] elementData, int s) {
+        if (s == elementData.length)
+            elementData = grow();
+        elementData[s] = e;
+        size = s + 1;
+    }
+当elementData的最大元素索引无法插入索引为s的e元素时，对缓冲区扩容
+grow()内部实现：
+
+	private Object[] grow() {
+        return grow(size + 1);
+    }
+
+	private Object[] grow(int minCapacity) {
+        int oldCapacity = elementData.length;
+        // 说实话，对于这个判断我也没一个比较好的说法，为啥要 ||
+        // 总之就是判断缓冲区是非空的
+        if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATa) {
+            int newCapacity = ArraysSupport.newLength(oldCapacity,
+                    minCapacity - oldCapacity, /* minimum growth */
+                    oldCapacity >> 1           /* preferred growth */);
+            return elementData = Arrays.copyOf(elementData, newCapacity);
+        } else {
+            return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];
+        }
+    }
+返回一个扩容后的elementData的内存地址，其中的ArraysSupport.newLength()方法：
+	
+	public static int newLength(int oldLength, int minGrowth, int prefGrowth) {
+        // assert oldLength >= 0
+        // assert minGrowth > 0
+
+        int newLength = Math.max(minGrowth, prefGrowth) + oldLength;
+        if (newLength - MAX_ARRAY_LENGTH <= 0) {
+            return newLength;
+        }
+        return hugeLength(oldLength, minGrowth);
+    }
+
+    private static int hugeLength(int oldLength, int minGrowth) {
+        int minLength = oldLength + minGrowth;
+        if (minLength < 0) { // 扩容后的容量超过了Integer的最大值，直接抛OOS
+            throw new OutOfMemoryError("Required array length too large");
+        }
+        if (minLength <= MAX_ARRAY_LENGTH) {  // 若最小扩容后没超，直接把最大容量返回
+            return MAX_ARRAY_LENGTH;
+        }
+        return Integer.MAX_VALUE;	// 实在没办法了，直接把极限给你吧
+    }
+其中newLenght方法接受三个参数：
+	oldLength: 原来的容量
+	minGrowth: 最少需要扩充的容量
+	prefGrowth: 希望能扩充的容量
+
+MAX_ARRAY_LENGTH是这样定义的：
+public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8  // 2147483639
+总之就是先看看原来的容量+扩充容量是不是在最大容量范围内
+在就返回新长度，不在说明扩容太多了，进hugLength方法进行一波操作
+
+其实只要搞懂了grow()，所有add()的方法都不难理解了
+其他的add():
+	
+	/**
+	 * 先判断扩容，再把需要插入的index后的所有元素往后稍
+	 * 最后在指定位置插入数据
+	 */
+    public void add(int index, E element) {
+        rangeCheckForAdd(index); // 检查索引的
+        modCount++; // 下面讲解
+        final int s;
+        Object[] elementData;
+        // 当元素个数 == 缓冲区容量时（当前缓冲区容量无法继续添加新元素）
+        // 会调用ArrayList扩容专用的方法grow()
+        if ((s = size) == (elementData = this.elementData).length)
+            elementData = grow();
+        System.arraycopy(elementData, index,
+                         elementData, index + 1,
+                         s - index);
+        elementData[index] = element;
+        size = s + 1;
+    }
+
+    /**
+     * modified: 是否成功插入任意一个元素
+     * 将c里面的元素一个个add到ArrayList里
+     */
+    public boolean addAll(Collection<? extends E> c) {
+        boolean modified = false;
+        for (E e : c)
+            if (add(e))
+                modified = true;
+        return modified;
+    }
+
+    /**
+     * 判断扩容，将elementData[index]开始的所有元素向后移c.length
+     * 然后把c的元素复制粘贴到elementData中间的空缺处
+     */
+    public boolean addAll(int index, Collection<? extends E> c) {
+        rangeCheckForAdd(index);
+
+        Object[] a = c.toArray();
+        modCount++;
+        int numNew = a.length;
+        if (numNew == 0)
+            return false;
+        Object[] elementData;
+        final int s;
+        if (numNew > (elementData = this.elementData).length - (s = size))
+            elementData = grow(s + numNew);
+
+        int numMoved = s - index;
+        if (numMoved > 0)
+            System.arraycopy(elementData, index,
+                             elementData, index + numNew,
+                             numMoved);
+        System.arraycopy(a, 0, elementData, index, numNew);
+        size = s + numNew;
+        return true;
+    }
+跟add有关的方法没了，现在来填一下上面出现的modCount坑
+该属性在ArrayList中定义：
+	protected transient int modCount = 0;
+自己对原注释文档的理解：
+	该属性是记录ArrayList在结构上被修改的次数，譬如调用add()、remove之类
+	会对elementData造成数据结构影响的方法;
+
+	该属性主要是给ArrayList的迭代器(Iterator)用的，如果你在使用迭代器时，
+	通过ArrayList的方法修改了数据结构，对该属性值造成影响，迭代器将会抛出一个
+	ConcurrentModificationException异常。
+
+	这提供一个快速故障（有道翻译）行为，比判断并发中的不确定行为好用，
+	因为该值只要一改，之前获取的ArrayList的Iterator全部过期，无法修改。
+	如果不需要这个功能，在子类覆盖即可。若子类需要这个功能，
+	在add或remove中该属性必须出现不超过一次。
+
+那就去看看iterator()的实现顺便理解一下modCount：
+
+	public Iterator<E> iterator() {
+        return new Itr();
+    }
+
+    private class Itr implements Iterator<E> {
+        int cursor;       // index of next element to return
+        int lastRet = -1; // index of last element returned; -1 if no such
+        int expectedModCount = modCount;
+
+        // prevent creating a synthetic constructor
+        Itr() {}
+
+        public boolean hasNext() {
+            return cursor != size;
+        }
+
+        @SuppressWarnings("unchecked")
+        public E next() {
+            checkForComodification();
+            int i = cursor;
+            if (i >= size)
+                throw new NoSuchElementException();
+            Object[] elementData = ArrayList.this.elementData;
+            if (i >= elementData.length)
+                throw new ConcurrentModificationException();
+            cursor = i + 1;
+            return (E) elementData[lastRet = i];
+        }
+
+        public void remove() {
+            if (lastRet < 0)
+                throw new IllegalStateException();
+            checkForComodification();
+
+            try {
+                ArrayList.this.remove(lastRet);
+                cursor = lastRet;
+                lastRet = -1;
+                expectedModCount = modCount;
+            } catch (IndexOutOfBoundsException ex) {
+                throw new ConcurrentModificationException();
+            }
+        }
+
+        final void checkForComodification() {
+            if (modCount != expectedModCount)
+                throw new ConcurrentModificationException();
+        }
+
+        public void forEachRemaining(Consumer<? super E> action) {...}
+    }
+ArrayList返回的是内部的Iterator类，封装了三个字段：
+	cursor: Iterator当前的索引
+	lastRet: Iterator最后操作的索引，未操作时值为-1，表示索引在0索引前
+	expectedModCount: 专门用来记录ArrayList的修改次数，判断这个Iterator是否过期
+next()是通过cursor来访问ArrayList缓冲区索引下的值，同时更新lastRet
+	  期间第一次判断Iterator是否已经访问完所有的元素了，
+	  第二次判断并发情况，如果第一个线程执行通过了第一次判断，
+	  在第二次判断之前第二个线程修改了ArrayList的数据，则抛出异常
+remove()在没调用next()之前，Iterator索引默认是在0之前的，所以直接调用remove会异常
+		真正remove的实现是交给ArrayList的remove(int index)来实现的，并同步更新
+		修改次数，保证版本一致
+两个方法都用到了checkForComodification()，用于检查Iterator的修改次数与ArrayList
+的是否相同，来判断数据版本是否一致。
+
+那ArrayList扩容到很大了后，我把缓冲区删到只剩下1个数据，多的空间不就没用了吗。。
+ArrayList提供了一个删除所有空余空间的方法：
+	
+	/**
+	 * 将缓冲区容量重置为数据长度大小
+	 */
+	public void trimToSize() {
+        modCount++;
+        if (size < elementData.length) {
+            elementData = (size == 0)
+              ? EMPTY_ELEMENTDATA
+              : Arrays.copyOf(elementData, size);
+        }
+    }
+
+接下来去看看remove()：
+
+	/**
+	 * 通过遍历缓冲区查找需要删除元素的索引
+	 * 包括null值都需要考虑
+	 */
+	public boolean remove(Object o) {
+        final Object[] es = elementData;
+        final int size = this.size;
+        int i = 0;
+        found: {
+            if (o == null) {
+                for (; i < size; i++)
+                    if (es[i] == null)
+                        break found;
+            } else {
+                for (; i < size; i++)
+                    if (o.equals(es[i]))
+                        break found;
+            }
+            return false;
+        }
+        fastRemove(es, i);
+        return true;
+    }
+
+    /*
+     * 删除指定索引下的元素，并返回删除的元素
+     */
+    public E remove(int index) {
+        Objects.checkIndex(index, size);
+        final Object[] es = elementData;
+
+        @SuppressWarnings("unchecked") 
+        E oldValue = (E) es[index];
+        fastRemove(es, index);
+
+        return oldValue;
+    }
+看来remove()的核心实现是通过fastRemove，源码：
+	
+	private void fastRemove(Object[] es, int i) {
+        modCount++;
+        final int newSize;
+        if ((newSize = size - 1) > i)
+            System.arraycopy(es, i + 1, es, i, newSize - i);
+        es[size = newSize] = null;
+    }
+其实就是避免代码冗余写了一个私有的删元素的方法，实现方法也很好理解，
+将i索引后的所有元素往前移，覆盖需要删除的元素
+最后将末尾的元素赋null，释放空间
+看源码能得出remove(Object o)方法每次都需要遍历缓冲区，造成性能上的损失，
+在可知的顺序中尽量使用后者
+
+再来看看removeAll：
+
+	public boolean removeAll(Collection<?> c) {
+        return batchRemove(c, false, 0, size);
+    }
+
+    /**
+     * 该方法用于删除缓冲区中在c有相同的所有元素
+     * 大致思路：
+     * 首先找到缓冲区中第一个在c有相同的元素的索引
+     * 将之后所有的不在c有相同的元素从该索引开始排列
+     * 举例：
+     * [1,2,3,4,5,6,7].removeAll([2,5])
+     * 先找到相同的2的索引1，从1开始,
+     * 下一个找到3,3没有相同元素，将3赋值到2的索引1
+ 	 * 找到4，有相同元素，跳过
+ 	 * 找到5，没有相同元素，将5赋值到索引1之后2
+ 	 * 找到6，也没有，6赋值到索引之后3...
+ 	 * 是相同元素时，跳过，非相同元素向第一个相同元素及之后插入
+ 	 * 最后将末尾不需要的元素释放内存空间
+     */
+    boolean batchRemove(Collection<?> c, boolean complement,
+                        final int from, final int end) {
+        Objects.requireNonNull(c);
+        final Object[] es = elementData;
+        int r;
+        // Optimize for initial run of survivors
+        // 查找第一个相同元素
+        for (r = from;; r++) {
+            if (r == end)
+                return false;
+            if (c.contains(es[r]) != complement)
+                break;
+        }
+        int w = r++; // 记录第一个相同元素索引
+        try {
+            for (Object e; r < end; r++)
+            	// 将不相同的元素从记录的位置开始插入
+                if (c.contains(e = es[r]) == complement)
+                    es[w++] = e;
+        } catch (Throwable ex) {
+            // 即使抛出异常，也要保持已经完成的行为
+            System.arraycopy(es, r, es, w, end - r);
+            w += end - r;
+            throw ex;
+        } finally {
+            modCount += end - w; // modCount + 一共删除了多少个元素
+            shiftTailOverGap(es, w, end);
+        }
+        return true;
+    }
+
+    /**
+     * 用于释放资源
+     */
+    private void shiftTailOverGap(Object[] es, int lo, int hi) {
+    	// 可能我目前的技术还不能理解这段话的意思
+        System.arraycopy(es, hi, es, lo, size - hi);
+        // 清除末尾不需要的元素，顺便给size重新赋值
+        for (int to = size, i = (size -= hi - lo); i < to; i++)
+            es[i] = null;
+    }
+因为包含大量遍历缓冲区操作，所以该方法效率不高。
+
+下面是get()和set()，非常好理解。
+
+	/**
+	 * 获取缓冲区指定索引下的元素
+	 */
+	public E get(int index) {
+        Objects.checkIndex(index, size);
+        return elementData(index);
+    }
+
+    /**
+     * 修改缓冲区指定索引下的元素
+     * 返回该索引下修改前的元素
+     */
+    public E set(int index, E element) {
+        Objects.checkIndex(index, size);
+        E oldValue = elementData(index);
+        elementData[index] = element;
+        return oldValue;
+    }
+
+用于查找特定元素的indexOf()，使用的遍历的方法：
+
+	public int indexOf(Object o) {
+        return indexOfRange(o, 0, size);
+    }
+
+    /**
+     * 遍历缓冲区，查找指定索引区间第一个相同的元素的索引
+     */
+    int indexOfRange(Object o, int start, int end) {
+        Object[] es = elementData;
+        if (o == null) { // null也能找
+            for (int i = start; i < end; i++) {
+                if (es[i] == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = start; i < end; i++) {
+                if (o.equals(es[i])) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+以及它的兄弟lastIndexOf()：
+	
+	public int lastIndexOf(Object o) {
+        return lastIndexOfRange(o, 0, size);
+    }
+
+    /**
+     * 逆向遍历缓冲区，查找指定索引区间最后一个相同的元素的索引
+     */
+    int lastIndexOfRange(Object o, int start, int end) {
+        Object[] es = elementData;
+        if (o == null) {
+            for (int i = end - 1; i >= start; i--) {
+                if (es[i] == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = end - 1; i >= start; i--) {
+                if (o.equals(es[i])) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+理解了indexOf()，那contains()肯定问题不大了：
+
+	public boolean contains(Object o) {
+		// 需要查询的元素是否在缓冲区有索引
+        return indexOf(o) >= 0;
+    }
+
+以及containsAll()：
+
+	public boolean containsAll(Collection<?> c) {
+		// 遍历查询集合，若有一个元素不存在缓冲区就返回false
+        for (Object e : c)
+            if (!contains(e))
+                return false;
+        return true;
+    }
+
+
+有toArray()还有一个toArray(T[] a)，用于将缓冲区数据装载到自定义类型的缓冲区：
+
+	public <T> T[] toArray(T[] a) {
+        if (a.length < size)
+            // 返回一个新的T[]类型的缓冲区数组
+            return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        System.arraycopy(elementData, 0, a, 0, size);
+        if (a.length > size)
+            a[size] = null;
+        return a;
+    }
+可以发现当传入的自定义类型数组容量不满缓冲区数据长度的话，
+只会将缓冲区强制转型并返回一个新的数组，而只有自定义类型容量大于缓冲区数据长度，
+才能保证修改的是自定义类型内存地址处的值。
+
+以上ArrayList常用的方法都讲完了，还有一些目前对于我个人来说不常用的，以后发现了再研究吧。。

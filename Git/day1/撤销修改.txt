@@ -1,0 +1,21 @@
+当修改文件后使用了$git add或只是保存时，可以使用：
+    $git checkout -- <file>     或者
+    $git restore <file>
+进行撤销修改，撤销分两种情况：
+1.<file>修改后未放至缓存区，撤销操作就是回到与版本库(HEAD)一致状态
+2.<file>添加已添加至缓存区，撤销操作回到上一次add时的状态
+
+也可以使用：
+    $git reset head <file>    或者
+    $git restore --staged <file>
+消除暂存区的file内容
+
+
+update 2020/12/16:
+reset三种模式：
+    $git reset --hard：
+        将工作区文件与HEAD都重置到一个位置，并清空缓存区
+    $git reset --soft：
+        只重置HEAD的位置，并将当前节点位置与工作区差异放入暂存区
+    $git reset --mixed：
+        默认模式，只保留工作区内容，重置暂存区内容与HEAD位置

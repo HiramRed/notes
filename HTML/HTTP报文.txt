@@ -1,0 +1,89 @@
+更好的学习建议谷歌
+
+HTTP请求报头分三个部分：
+	* 请求行
+	* 请求头
+	* 请求体
+
+一个实际的HTTP报文例子：
+
+POST /search HTTP/1.1  
+Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, application/x-silverlight, application/x-shockwave-flash, */*
+Referer: http://www.google.cn/
+Accept-Language: zh-cn
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; TheWorld)
+Host: www.google.cn
+Connection: Keep-Alive  
+Cookie: PREF=ID=80a06da87be9ae3c;U=f7167333e2c3b714;NW=1;TM=1261551909;LM=1261551917;S=ybYcq2wpfefs4V9g;
+NID=31=ojj8d-IygaEtSxLgaJmqSjVhCspkviJrB6omjamNrSm8lZhKy_yMfO2M4QMRKcH1g0iQv9u-2hfBW7bUFwVh7pGaRUb0RnHcJU37y-FxlRugatx63JLv7CWMD6UB_O_r
+
+hl=zh-CN&source=hp&q=domety
+
+HTTP请求报头结构：
+请求方法 空格 URI 空格 HTTP协议版本 \r\n
+请求头名称: 值 \r\n
+...
+请求头名称: 值 \r\n
+\r\n
+请求体
+
+
+常见请求报文头属性：
+Accept:表示客户端能接收的文件格式
+Referer:表示你是从哪个URL跳转到该界面的
+Cache-Control:请求服务器返回内容在客户端缓存时间，no-cache表示不缓存
+
+
+
+
+
+HTTP响应报文:
+	* 响应行
+	* 响应头
+	* 响应体
+
+例:
+HTTP/1.1 200 OK
+Date: Mon, 23 May 2005 22:38:34 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Encoding: UTF-8
+Content-Length: 138
+Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT
+Server: Apache/1.3.3.7 (Unix) (Red-Hat/Linux)
+ETag: "3f80f-1b6-3e1cb03b"
+Accept-Ranges: bytes
+Connection: close
+
+<html>
+<head>
+  <title>An Example Page</title>
+</head>
+<body>
+  Hello World, this is a very simple HTML document.
+</body>
+</html>
+
+结构:
+HTTP协议版本 空格 状态码 空格 状态码描述 \r\n
+响应头名: 内容 \r\n
+...
+响应头名: 内容 \r\n
+\r\n
+响应体
+
+
+响应状态码
+状态代码由服务器发出，以响应客户端对服务器的请求。
+1xx（信息）：收到请求，继续处理
+2xx（成功）：请求已成功接收，理解和接受
+3xx（重定向）：需要采取进一步措施才能完成请求
+4xx（客户端错误）：请求包含错误的语法或无法满足
+5xx（服务器错误）：服务器无法满足明显有效的请求
+
+
+常见响应报文头属性:
+Cache-Control: 服务器让客户端对响应内容的缓存时间，实际缓存时间取决于客户端
+ETag: 表示服务器资源是否有改变的值，当值与客户端存储的不同时，则向服务器请求资源，否则读取缓存
+Location: 告诉客户端该转向哪个页面
+Set-Cookie: 服务器对客户端设置的Cookie

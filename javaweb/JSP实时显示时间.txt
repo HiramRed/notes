@@ -1,0 +1,39 @@
+update: 2020年3月6日13:29:40
+
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.LocalDate" %><%--
+  Created by IntelliJ IDEA.
+  User: Administrator
+  Date: 2020/3/5 0005
+  Time: 12:57
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>TimeTick</title>
+    <script type="text/javascript">
+        var curTime = <%=System.currentTimeMillis()%>;
+        function timeFormatter(c) {
+            var date = new Date(c);
+            var yy = date.getFullYear();
+            var MM = date.getMonth() + 1;
+            var dd = date.getDate();
+            var HH = date.getHours();
+            var mm = date.getMinutes();
+            var ss = date.getUTCSeconds();
+            return yy + '-' + MM + '-' + dd + ' ' + HH + ':' + mm + ':' +
+                (ss >= 10 ? ss : '0' + ss);
+        }
+        function setTime(time) {
+            document.getElementById('tick').innerText = timeFormatter(time);
+        }
+        window.onload = function (e) { setTime(curTime); }
+        window.setInterval('setTime(curTime += 1000)', 1000);
+    </script>
+</head>
+<body>
+<p>服务器时间：<span id="tick"></span></p>
+</body>
+</html>

@@ -1,0 +1,11 @@
+﻿导入Camera.Net包
+
+保存视频：
+VideoFileWriter videoWriter = new VideoFileWriter();
+
+// 文件保存为.avi格式，使用MPEG4编码，25fps
+videoWriter.Open("D://video.avi", 1280, 720, 25, VideoCodes.MPEG4);
+
+videoWriter.Write(buffer);    // 写入图片字节流
+
+videoWriter.Close();    // 关闭（保存）

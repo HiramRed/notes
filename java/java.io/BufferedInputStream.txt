@@ -1,0 +1,86 @@
+参考资料：https://www.cnblogs.com/daxin/p/3771293.html
+
+/**
+ * 带缓冲区的InputStream
+ * 每次从依赖的InputStream中读满缓冲区大小
+ * 调用read()方法读取的是缓冲区中的数据
+ * 可以使用mark保存当前缓冲区位置，以保证之后可以回到该位置继续读取数据
+ */
+
+public
+class BufferedInputStream extends FilterInputStream {
+
+	private static int DEFAULT_BUFFER_SIZE = 8192;
+
+	// 缓冲区
+	protected volatile byte[] buf;
+
+	// 缓冲区可读字节大小
+	protected int count;
+
+	// 缓冲区下一个读取字节的位置
+	protected int pos;
+
+	// 缓冲区标记位置
+	protected int markpos = -1;
+
+	// 缓冲区标记位置开始可读的长度
+	protected int marklimit;
+
+
+	private InputStream getInIfOpen() throws IOException {
+        InputStream input = in;
+        if (input == null)
+            throw new IOException("Stream closed");
+        return input;
+    }
+
+    private byte[] getBufIfOpen() throws IOException {
+        byte[] buffer = buf;
+        if (buffer == null)
+            throw new IOException("Stream closed");
+        return buffer;
+    }
+
+
+    // 核心方法
+    private void fill() throws IOException {
+        byte[] buffer = getBufIfOpen();
+        if (markpos < 0)
+            pos = 0;            /* 未使用过mark方法，没有需要再次访问的数据 */
+        else if (pos >= buffer.length) { /* 缓冲区已满 */
+            if (markpos > 0) {  /* 可以抛弃mark标记前的数据，以装新数据 */
+                int sz = pos - markpos;  /* 需要再次访问数据的长度 */
+                System.arraycopy(buffer, markpos, buffer, 0, sz);
+                pos = sz;
+                markpos = 0;
+            } else if (buffer.length >= marklimit) {
+                markpos = -1;   /* 缓冲区已经扩展至marklimit大小且无法继续装新数据 */
+                pos = 0;        /* 丢弃所有缓冲区数据 */
+            } else {            /* 若markpos + marklimit > buffer.length，则拓展缓冲区 */
+                int nsz = ArraysSupport.newLength(pos,
+                        1,  /* minimum growth */
+                        pos /* preferred growth */);
+                if (nsz > marklimit)
+                    nsz = marklimit;
+                byte[] nbuf = new byte[nsz];
+                System.arraycopy(buffer, 0, nbuf, 0, pos);
+                buffer = nbuf;
+            }
+        }
+        count = pos;
+        int n = getInIfOpen().read(buffer, pos, buffer.length - pos);
+        if (n > 0)
+            count = n + pos;
+    }
+
+
+    public synchronized int read() throws IOException {
+        if (pos >= count) {
+            fill();
+            if (pos >= count)
+                return -1;
+        }
+        return getBufIfOpen()[pos++] & 0xff;
+    }
+}

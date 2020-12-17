@@ -1,0 +1,29 @@
+class ArrayFormatter {
+
+    public static <E> String format(List<E> list) {
+        if(list == null) {
+            return null;
+        }
+        return list.toString();
+    }
+
+    public static String format(Object[] o) { // 偷学List的toString()方法
+        if(o == null) {
+            return null;
+        }
+        int i = 0;
+        if (i == o.length) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for(;;) {
+            sb.append(o[i]);
+            i ++;
+            if(i == o.length) {
+                return sb.append(']').toString();
+            }
+            sb.append(',').append(' ');
+        }
+    }
+}

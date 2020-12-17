@@ -1,0 +1,180 @@
+﻿在关系型数据库中，表与表之间是通过主键与外键来体现的。而表与表之间的关系主要有三种：
+一对一、一对多（多对一）、多对多。
+
+一对一：
+
+    父表和子表，子表的主键，既是主键又是外键。
+
+    例：一夫一妻制
+
+    父表为男方，子表为女方
+
+    --男方
+    create table if not exists hasband (
+  	    h_id int,
+            h_name varchar(20),
+	    primary key(h_id)
+    );
+
+    --女方
+    create table if not exists wife (
+	    w_id int,
+	    w_name varchar(20),
+	    primary key(w_id),
+	    constraint fk_wife_hasband foreign key(w_id) reference hasband(h_id)
+    );
+
+    测试：
+    
+    INSERT INTO hasband VALUES(1,'丈夫1');
+    INSERT INTO hasband VALUES(2,'丈夫2');
+
+    INSERT INTO wife VALUES(1,'夫人1');
+    INSERT INTO wife VALUES(2,'夫人2');
+
+    丈夫1配对夫人1，丈夫2配对夫人2，父表的数据必须先于子表的存在，
+    而且子表的主键数据必须从父表的主键数据中取，否则出错。
+
+    以下代码执行将报错：
+    INSERT INTO wife VALUES(3,'夫人3'); --男方表主键值中没有3
+    INSERT INTO wife VALUES(1,'夫人4'); --女方表中已存在1，无法再添加
+
+
+    总结：
+	* 一对一关系的体现是让子表中的主键，既是主键又是外键
+	* 父表和子表的主键值必须——对应
+	* 父表的数据必须先于子表的存在，因为子表的主键值需要参照父表的主键值
+
+
+
+一对多（多对一）：
+
+    多引用—，多为子表，一为父表
+
+    例：员工和部的关系，一个员工只能属于一个部，但一个部能有多个员工；
+	学生和班的关系，一个学生只能属于一个班，但一个班能有多个学生；
+
+    父表为部，子表为员工
+
+    --部
+    create table if not exists bu (
+	    bu_id int,
+	    bu_name varchar(30),
+	    primary key(bu_id)
+    );
+
+    --员工
+    create table if not exists yg (
+	    yg_id int,
+	    yg_name varchar(20),
+	    yg_bu_id int,
+  	    primary key(yg_id),
+	    constraint fk_yg_buid foreign key(yg_bu_id) reference bu(bu_id)
+    );
+    
+    测试：
+ 
+    INSERT INTO bu VALUES(1,'财政部');
+    INSERT INTO bu VALUES(2,'人力资源部');
+
+    INSERT INTO yg VALUES(1,'王大花',1);
+    INSERT INTO yg VALUES(2,'王二花',1);
+    INSERT INTO yg VALUES(3,'李三花',2);
+    INSERT INTO yg VALUES(4,'吴四花',1);
+    INSERT INTO yg VALUES(5,'秀五花',2);
+    INSERT INTO yg VALUES(6,'丽六花',null);
+
+    在一对多关系中，外键值是可以重复的，外键也可以是空的，表示员工没有所属部门。
+
+    以下代码执行将报错：
+    INSERT INTO yg VALUES(1,'王丽花',1); --员工表主键中已有1
+    INSERT INTO yg VALUSE(7,'王丽花',3); --部门表主键中没有3
+
+
+    总结：
+	* 在一对多关系中，子表的外键可以为空
+	* 若子表的外键不为空，则其值必须在父表的主键值上取
+
+
+多对多：
+
+    多对多关系需要建立一张表来存放多对多关系，而不是在原来的表上引入外键。
+
+    例：学生与老师的关系，一个学生能有多个老师，一个老师能有多个学生
+
+    需要创建一个学生表，一个老师表，一个关系表
+
+    --学生表
+    create table if not exists stu (
+	    stu_id char(9),
+  	    stu_name varchar(20) not null,
+	    stu_birth date not null,
+ 	    stu_sex varchar(1) not null,
+	    stu_study varchar(20) not null,
+	    primary key(stu_id)
+    );
+
+    --老师表
+    create table if not exists teacher (
+	    tch_id smallint,
+	    tch_name varchar(20) not null,
+	    tch_birth date not null,
+	    tch_sex varchar(1) not null,
+	    primary key(tch_id)
+    );
+
+    --关系表
+    create table if not exists relation (
+	    rela_stu_id char(9),
+	    rela_tch_id smallint,
+	    constraint fk_rela_stuid foreign key(rela_stu_id) reference stu(stu_id),
+	    constraint fk_rela_tchid foreign key(rela_stu_id) reference teacher(tch_id)
+    );
+
+    测试：
+    
+    insert into stu(stu_id,stu_name,stu_birth,stu_sex,stu_study) values('170501115','谢亮','02-08-14','男','计算机网络技术');
+
+    insert into stu(stu_id,stu_name,stu_birth,stu_sex,stu_study) values('170501114','替身1','02-05-08','男','计算机网络技术');
+
+    insert into stu(stu_id,stu_name,stu_birth,stu_sex,stu_study) values('170501116','替身2','01-12-03','男','计算机网络技术');
+
+    insert into stu(stu_id,stu_name,stu_birth,stu_sex,stu_study) values('170501322','替身3','02-04-23','女','会计');
+    
+insert into stu(stu_id,stu_name,stu_birth,stu_sex,stu_study) values('170501323','替身4','02-07-08','男','会计');
+ 
+    
+
+insert into teacher(tch_id,tch_name,tch_birth,tch_sex) values(100,'老师1','88-02-28','女');
+
+    insert into teacher(tch_id,tch_name,tch_birth,tch_sex) values(101,'老师2','77-05-08','男');
+
+    insert into teacher(tch_id,tch_name,tch_birth,tch_sex) values(102,'老师3','78-02-16','男');
+    
+insert into teacher(tch_id,tch_name,tch_birth,tch_sex) values(103,'老师4','82-11-23','男');
+
+    
+
+insert into relation(rela_stu_id,rela_tch_id) values('170501115',100);
+insert into relation(rela_stu_id,rela_tch_id) values('170501115',101);
+    
+insert into relation(rela_stu_id,rela_tch_id) values('170501114',100);
+insert into relation(rela_stu_id,rela_tch_id) values('170501114',101);
+    
+insert into relation(rela_stu_id,rela_tch_id) values('170501116',100);
+insert into relation(rela_stu_id,rela_tch_id) values('170501116',101);
+
+insert into relation(rela_stu_id,rela_tch_id) values('170501322',102);
+insert into relation(rela_stu_id,rela_tch_id) values('170501322',103);
+    
+insert into relation(rela_stu_id,rela_tch_id) values('170501323',102);
+insert into relation(rela_stu_id,rela_tch_id) values('170501323',103);
+
+
+    多对多跟一对多大同小异，只不过多对多体现需要第三张表
+
+
+    总结：
+	* 多对多的体现需要第三张表，而且表里的字段都是主表上的主键
+	* 在多对多中，关系表的外键可以为空
+	* 若关系表的外键不为空，则其值必须在被参照的父表主键值上取

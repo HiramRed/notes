@@ -1,0 +1,91 @@
+API文档原话：
+This class implements a vector of bits that grows as needed. Each component of the bit set has a boolean value. The bits of a BitSet are indexed by nonnegative integers. Individual indexed bits can be examined, set, or cleared. One BitSet may be used to modify the contents of another BitSet through logical AND, logical inclusive OR, and logical exclusive OR operations.
+
+By default, all bits in the set initially have the value false.
+
+Every bit set has a current size, which is the number of bits of space currently in use by the bit set. Note that the size is related to the implementation of a bit set, so it may change with implementation. The length of a bit set relates to logical length of a bit set and is defined independently of implementation.
+
+Unless otherwise noted, passing a null parameter to any of the methods in a BitSet will result in a NullPointerException.
+
+A BitSet is not safe for multithreaded use without external synchronization.
+
+翻译：
+这个类实现了一个按需增长的位向量，每个bit set的组成部分都有一个boolean值。一个BitSet的位都由非负整数索引。
+所有位都能被检查、设置和清除。一个位集可用于通过逻辑与、逻辑包含或和逻辑排除或操作修改另一个位集的内容。
+
+默认情况下，集合中的所有位最初都由值false.
+
+每个bit set都有一个当前大小，即该bit set当前使用的空间位数.需要注意空间位数的大小与bit set的实现有关，随实现而改变.bit set的长度与其逻辑长度相关，并且是独立于实现而定义的.
+
+除非另有说明，否则将空参数传递给位集中的任何方法都将导致NullPointerException。
+
+在没有外部同步的情况下，BitSet对于多线程使用是不安全的。
+
+
+大概讲解：
+BitSet底层是Long[]来存储数据的，通过位操作来获取相应的数据
+一个Long类型能存储64个位，每一位都表示一个boolean值，索引表示整数值
+...0000 1111表示该集合存储了0,1,2,3的值，从第0位表示0开始，之后的位值依次递增
+
+
+构造方法：
+BitSet() 		  	// Creates a new bit set.
+BitSet(int nbits) 	// 创建一个bit set，其初始大小足以显示表示索引范围为0到nbits-1的位
+
+方法：
+void and(BitSet set)	 // 使用参数bit set执行此目标的逻辑与
+void andNot(BitSet set)  // 清除此位集中所有与参数对应的位(置false)
+int  cardinality()		 // 返回集合中设置为true的位数
+void clear()			 // 清空集合
+void clear(int bitIndex) // 清空目标索引的值
+void clear(int fromIndex, int toIndex) // 清空fromIndex到toIndex的值
+Object clone()			 // 返回副本
+boolean equals(Object obj) // 比较
+void flip(index bitIndex) // 取反指定索引的值
+void flip(int fromIndex, int toIndex) // 取反范围索引的值
+boolean get(int bitIndex) // 返回索引的boolean值
+BitSet get(int fromIndex, toIndex) // 返回范围索引的BitSet
+int hashCode() // 哈希数
+boolean intersects(BitSet set) // 如果参数集合所有ture的索引在本集合中也为true，则返回true
+boolean isEmpty() // 是否为空(所有索引的值都为false)
+int length() // 返回集合的逻辑大小(集合中最高位的索引值+1)
+int nextClearBit(int fromIndex) // 返回从该索引算起下一个false值的索引
+int nextSetBit(int fromIndex) // 返回从该索引算起下一个ture的索引
+void or(BitSet set) // 使用位集参数执行此位集的逻辑或
+int previousClearBit(int fromIndex) // 返回在指定的起始索引上或之前置为false的的索引
+int previousSetBit(int fromIndex) // 返回在指定的起始索引上或之前被置为true的索引
+void set(int bitIndex) // 将目标索引值置为ture
+void set(int bitIndex, boolean value) // 将目标索引值置为value
+void set(int fromIndex, int toIndex) // 将范围索引值置为true
+void set(int fromIndex, int toIndex, boolean value) // 将范围索引值置为value
+int size() // 返回集合空间大小
+IntStream stream() // 如果集合不为空，返回一个索引流
+byte[] toByteArray() // 返回byte[]包含集合中所有的位
+long[] toLongArray() // 返回long[]包含集合中所有的位
+String toString() // 返回一个集合存储值的String
+
+static BitSet valueOf(byte[] bytes) // 将byte[]转成BitSet
+static BitSet valueOf(long[] longs) // 将long[]转成BitSet
+static BitSet valueOf(ByteBuffer bb) // 将ByteBuffer转成BitSet
+static BitSet valueOf(LongBuffer lb) // 将LongBuffer转成BitSet
+void xor(BitSet set) // 与参数集合进行异或计算
+
+
+获取BitSet存储的值：
+public int[] valueOf(BitSet set) {
+	if(set == null) {
+		return null;
+	}
+	int[] a = new int[set.cardinality()];
+	int i = set.nextSetBit(0);
+	int k = 0;
+	while(i >= 0) {
+		a[k ++] = i;
+		i ++;
+		i = set.nextSetBit(i);
+	}
+	return a;
+}
+
+
+BitSet用于存储数量比较大的非负整数，值上限为Long.MAX_VALUE，重复值会覆盖

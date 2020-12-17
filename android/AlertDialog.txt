@@ -1,0 +1,40 @@
+简单的消息提示框：
+    new AlertDialog.Builder(this)
+        .setTitle("Title")  // 标题
+        .setMessage("Message")  //内容
+        .setPositiveButton("确定", null) // 确认按钮，以及点击事件
+        .show();
+
+带'是'和'否'的提示框
+    new AlertDialog.Builder(this)
+        .setTitle("")
+        .setMessage("")
+        .setPositiveButton("是", null)
+        .setNegativeButton("否", null)
+        .show();
+
+带控件的提示框(控件继承自View)
+    new AlertDialog.Builder(this)
+        .setTitle("")
+        .setMessage("")
+        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface a1, int a2) {
+                // do sth.
+            }
+        })
+        .setNegativeButton("取消", null)
+        .show();
+
+单选提示框：
+    new AlertDialog.Builder(this)
+        .setSingleChoiceItems(
+            new String[] {"1", "2"},    // 选项集合
+            -1,     // 默认选中的选项，-1表示不选中
+            (a, b) -> {
+                a.dismiss();    // 关闭当前对话框
+            })    // 选项点击事件,a表示当前对话框对象，b表示选项位置  
+        .setNegativeButton("取消", null)
+        .show();
+
+多选提示框：
+    

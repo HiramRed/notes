@@ -1,0 +1,12 @@
+:set tabstop=4
+	设置TAB键缩进长度
+:set softtablestop=4
+	设置编辑模式下按退格键缩进长度
+:set shiftwidth=4
+	设置每一级缩进长度
+:set (no)expandtab
+	设置expandtab时缩进用空格表示，noexpandtab时使用制表符
+:set autoindent
+	设置自动缩进
+:set number
+	设置自动显示行号

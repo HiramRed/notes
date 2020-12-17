@@ -1,0 +1,35 @@
+java代码实现：
+    NotificationManager nManager = (NotificationManager) 
+        getSystemService(NOTIFICATION_SERVICE);
+    Notification n = new NotificationCompat.Builder(MainActivity.this)
+        .setContentTitle("Title")       // 设置标题
+        .setContentText("Content")      // 设置内容
+        .setWhen(Systemt.currentTimeMillis())   // 设置时间
+        .setSmallIcon(R.mipmap.ic_launcher)     // 设置小图标，只能使用alpha图层图片设置
+        .setLargeIcon(BitmapFactory.decodeResource      // 设置大图标
+            (getResources(), R.mipmap.ic_launcher))
+        .setContentIntent(PendingIntent.getActivity     // 设置点击通知后跳转的Activity
+            (MainActivity.this, 0, intent, 0))
+//        .setAutoCancel(true)    // 设置自动取消
+        .build();
+    nManager.notify(1, n);      // 第一个参数为ID
+
+关闭通知：
+(1)设置setAutoCancel(true);
+(2)在跳转后的Activity中:
+    NotificationManager nManager = (NotificationManager)
+        getSystemService(NOTIFICATION_SERVICE);
+    nManager.cancel(1);     // 参数为之前设置的ID
+
+
+进阶使用：
+    .setSound(Uri.fromFile(new File("..")))     // 设置提示音
+    .setvibrate(new long[]{0, 500, 500, 500})   // 设置震动
+    .setLights(Color.GREEN, 1000, 1000)     // 设置LED闪烁，参数1为颜色，参数2为亮的时长，参数三为暗的时长
+    .setDefaults(NotificationCompat.DEFAULT_ALL)    // 使用默认效果，根据手机当前环境播放铃声、震动
+    .setStyle(new NotificationCompat    // 显示完整的通知内容(不会进行缩放)
+        .BigTextStyle().bigText("")
+//    .setStyle(new NotificationCompat  // 显示大图片
+        .BigPictureStyle().bigPicture(BitmapFactory.decodeResource(
+            getResources(),R.mipmap.ic_launcher)))
+    .setPriority(PRIORITY_DEFAULT);     // 重要程度

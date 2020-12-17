@@ -1,0 +1,9 @@
+工作区(Working Directory)
+    电脑中的目录，每个文件夹就是一个工作区
+
+版本库(Repository)
+    Git仓库中有个隐藏目录.git，为Git的版本库
+    .git中最重要的是stage(或者index)的暂存区，master(分支)，HEAD
+    执行$ git add的第一步是把文件添加进暂存区
+    第二部$git commit提交更改，把暂存区所有内容提交到master
+

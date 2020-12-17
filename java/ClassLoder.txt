@@ -1,0 +1,208 @@
+本文参考：https://blog.csdn.net/briblue/article/details/54973413
+
+2019-11-21
+
+前言：
+	ClassLoder，顾名思义，类加载器。理解类加载机制，有利于编写更高效的代码。ClassLoder的作用就是
+	将class文件加载到jvm中去。
+
+	在了解ClassLoder之前，需要先复习一下java的环境搭配。（以下默认java安装在c盘）
+
+		JAVA_HOME
+		C:\Program Files\Java\jdk
+
+		PATH
+		%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin;
+
+		CLASSPATH （".;"中，"."表示当前目录）
+		.;%JAVA_HOME%\lib;%JAVA_HOME%\lib\toors.jar
+
+
+JAVA类加载流程
+	java有三个类加载器：
+	
+		Bootstrap ClassLoader：根加载类，主要加载核心类库，%JRE_HOME%\lib下的rt.jar、resources.jar、charsets.jar和class等。
+							   另外需要注意的是可以通过启动jvm时指定-Xbootclasspath和路径来改变Bootstrap ClassLoader的加载目录。
+							   比如java -Xbootclasspath/a:path被指定的文件追加到默认的bootstrap路径中。
+							   我们可以打开我的电脑，在上面的目录下查看，看看这些jar包是不是存在于这个目录。
+							   
+		Extention ClassLoader： 扩展的类加载器，加载目录%JRE_HOME%\lib\ext目录下的jar包和class文件。
+								还可以加载-D java.ext.dirs选项指定的目录。
+								
+		Appclass ClassLoader：  也称为SystemAppClass 加载当前应用的classpath的所有类，
+								所有自己写的类的加载器都是App
+
+	加载顺序：
+		App -> Ext -> Boot
+		通过双亲委托模式，首先AppClassLoader会先去缓存寻找Class文件，如果没找到，通过父加载器：
+		ExtClassLoader去寻找，也是先从缓存找，再去交给父加载器。当父加载器为null（即根加载器，
+		根加载器只存在与jvm中），交给最后的根加载器（jvm）处理，若根加载器找到了，返回结果；否则
+		由上级返回，从自身目录寻找Class文件（Boot -> Ext -> App）
+		
+		流程：
+			1.AppClassLoader查询缓存，若未找到结果，先交给上级ExtClassLoader查找
+			2.ExtClassLoader也是查询缓存，若未找到结果，再转交给根加载器查找
+			3.根加载器也是先查缓存，没找到的话就去自己负责加载的路径找，找到了返回，找不到退回Ext
+			4.若根加载器也未找到，则去自身负责加载的路径找，找到返回，找不到退回App
+			5.若AppClassLoader查询路径未找到，同样也会去自身路径找，找到返回，找不到返回null
+			
+	贴原码：
+		/**
+		 *@param  name
+		 *         The <a href="#binary-name">binary name</a> of the class
+		 *
+		 * @param  resolve
+		 *         If {@code true} then resolve the class
+		 *
+		 * @return  The resulting {@code Class} object
+		 *
+		 * @throws  ClassNotFoundException
+		 *          If the class could not be found
+		 */
+		 
+			protected Class<?> loadClass(String name, boolean resolve)
+			throws ClassNotFoundException
+		{
+			synchronized (getClassLoadingLock(name)) {
+				// First, check if the class has already been loaded（从缓存找）
+				Class<?> c = findLoadedClass(name);
+				if (c == null) {   		//缓存找不到
+					long t0 = System.nanoTime();
+					try {
+						if (parent != null) {  	//判断父加载器是否是根加载器
+							c = parent.loadClass(name, false);	//委托父加载器查找
+						} else {
+							c = findBootstrapClassOrNull(name);	 //交给jvm的根加载器查找
+						}
+					} catch (ClassNotFoundException e) {
+						// ClassNotFoundException thrown if class not found
+						// from the non-null parent class loader
+					}
+
+					if (c == null) {	//若父加载器未找到
+						// If still not found, then invoke findClass in order
+						// to find the class.
+						long t1 = System.nanoTime();
+						c = findClass(name);	//查询自己的目录寻找class文件
+
+						// this is the defining class loader; record the stats
+						PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+						PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+						PerfCounter.getFindClasses().increment();
+					}
+				}
+				if (resolve) {
+					resolveClass(c); 	//写该文档的时候我也不知道这个干嘛的，判空的？？
+				}
+				return c;
+			}
+		}
+		
+		protected final void resolveClass(Class<?> c) {
+			if (c == null) {
+				throw new NullPointerException();
+			}
+		}
+	
+		findClass()方法由ClassLoader的子类重写
+		
+自定义ClassLoader
+	一般继承一个ClassLoader，重写findClass方法即可
+	
+	首先在D://创建一个classes文件，并由控制台指令javac -java文件路径生成.class文件
+	文件：Test.java -> Test.class
+	
+	public class Test{
+		public String wantSay(){
+			return "HelloWorld!";
+		}
+	}
+	
+	自定义的DiskClassLoader:
+	
+		package priv.xl.classloder.demo;
+
+		import java.io.BufferedInputStream;
+		import java.io.ByteArrayOutputStream;
+		import java.io.File;
+		import java.io.FileInputStream;
+
+		public class DiskClassLoder extends ClassLoader {
+
+			private String filePath;
+
+			public DiskClassLoder(String path){
+				this.filePath = path;
+			}
+
+			@Override
+			protected Class<?> findClass(String name) throws ClassNotFoundException {
+				String fileName = getFileName(name);
+				File f = new File(filePath, fileName);
+				FileInputStream fis = null;
+				BufferedInputStream bis = null;
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				try {
+					fis = new FileInputStream(f);
+					bis = new BufferedInputStream(fis);
+					int r;
+					while ((r = bis.read()) != -1) {
+						bos.write(r);
+					}
+					byte[] buf = bos.toByteArray();
+					if(buf.length < 1)
+						return null;
+					return defineClass(name, buf, 0, buf.length);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (fis != null)
+							fis.close();
+						if (bis != null)
+							bis.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				return super.findClass(name);
+			}
+
+			private String getFileName(String name){
+				int index = name.indexOf('.');
+				if(index == -1){
+					return name + ".class";
+				}else{
+					return name.substring(index + 1) + ".class";
+				}
+			}
+		}
+	
+	原谅我当时学的时候胶水了太多资料文档的方法，但总归经验是一次次做出来的嘛。
+	
+	测试类：（写文档的时候并不会使用JUnit）
+	
+		package priv.xl.classloder.demo;
+
+		import java.lang.reflect.Method;
+
+		public class TestMain {
+			public static void main(String[] args){
+				long start = System.currentTimeMillis();
+				DiskClassLoder loder = new DiskClassLoder("D://classes");
+				try{
+					Class c = loder.loadClass("Test");
+					if(c != null){
+						Object o = c.getDeclaredConstructor(null).newInstance();
+						Method m = c.getDeclaredMethod("wantSay",null);
+						String say = (String)m.invoke(o,null);
+						System.out.println(say);
+						System.out.println("time:" + (System.currentTimeMillis() - start));
+					}
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	ClassLoader基本知识就这样了，详细多百度，文档留自己巩固的，所以写的很疏漏
