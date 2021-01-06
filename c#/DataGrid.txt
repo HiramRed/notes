@@ -1,0 +1,29 @@
+﻿DataGrid自定义列：
+
+在DataGrid标签中添加属性：
+AutoGenerateColumns = "False"	<!-- 自动添加列 -->
+CanUserResizeColumns = "False"	<!-- 修改列宽 -->
+
+在DataGrid中添加字标签
+<DataGrid.Columns> <自定义的列> </DataGrid.Columns>
+
+其中自定义列有：
+<DataGridCheckBoxColumn>
+<DataGridComboBoxColumn>
+<DataGridHyperlinkColumn>
+<DataGridTemplateColumn>
+<DataGridTextColumn>
+
+其中<DataGridTemplateColumn>需要继续添加子标签
+<DataGridTemplateColumn.CellTemplate>
+    <DataTemplate>
+        <StackPanel>
+            <Button Content="删除" Click="Button_Click"/>
+        </StackPanel>
+    </DataTemplate>
+</DataGridTemplateColumn.CellTemplate>
+
+自定义列需要添加数据源，在列标签中添加属性：Binding="{Binding 数据源名称}"
+
+列可以用width="1*"来设置宽的比例，其中1为数值，*表示全部
+

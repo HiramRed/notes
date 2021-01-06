@@ -1,0 +1,97 @@
+使用如下命令创建一个Web项目
+> mvn archetype:generate -DgroupId=priv.xl -DartifactId=struts2
+    -Dpackage=priv.xl.struts2 -DarchetypeArtifactId=maven-archetype-webapp 
+    -DinteractiveMode=false
+
+定义项目描述信息：
+<!-- 定义该项目所使用的License -->
+<licenses>
+  <license>
+    <name>Apache 2</name>
+    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    <distribution>repo</distribution>
+    <comments>A business-friendly OSS license</comments>
+  </license>
+</licenses>
+<!-- 声明该项目所属的组织 -->
+<organization>
+  <name>OhMyBug</name>
+  <url>http://www.ohmybug.org</url>
+</organization>
+<!-- 声明项目开发者 -->
+<developers>
+  <developer>
+    <id>ohmybug</id>
+    <name>ohmybug</name>
+    <email>ohmybug@163.com</email>
+    <url>http://www.ohmybug.org</url>
+    <organization>OhMyBug</organization>
+    <!-- 声明开发者的角色 -->
+    <roles>
+      <role>developer</role>
+    </roles>
+    <timezone>+8</timezone>
+  </developer>
+</developers>
+<!-- 声明对项目有贡献的人 -->
+<contributors>
+  <contributor>
+    <name>ohmybug</name>
+    <email>ohmybug@163.com</email>
+    <url>http://www.ohmybug.org</url>
+    <organization>ohmybug</organization>
+    <roles>
+      <role>developer</role>
+    </roles>
+  </contributor>
+</contributors>
+
+
+为项目添加Struts2的支持，可以在pom.xml中的<dependencies>中增加<dependency>
+每个<dependency>定义了一个依赖框架或类库，接受以下子元素:
+> <groupId>: 指定依赖框架或类库所属组织ID
+> <artifactId>: 指定依赖框架或类库的项目名
+> <version>: 指定依赖框架或类库的版本号
+> <scope>: 指定依赖库起作用的范围
+> <type>: 指定依赖框架或类库的类型，默认值jar，可指定war,ejb-client,test-jar
+> <optional>: 指定依赖库是否为可选的
+> <classifier>: JDK版本号，如jdk14，指定依赖的JAR包在哪个版本下编译的
+> <exclusions>: 用于排除依赖
+
+<scope>可指定如下值：
+> compile: 默认范围，编译、测试、打包时需要
+> provided: 表示容器在runtime时提供
+> runtime: 表示编译时不需要，但测试和运行时需要，最终打包会包含进去
+> test: 只用于测试阶段
+> system: 与provided类似，但要求该JAR是系统中自带的
+> import: 继承父POM文件中用dependencyManagement配置的依赖
+
+import范围只能在dependencyManagement元素中使用(为解决多继承)
+
+由于Maven的依赖管理具有传递性，因此有时需要用<exclusion>排除指定依赖：
+<dependency>
+  <groupId>javax.activation</groupId>
+  <artifactId>mail</artifactId>
+  <type>jar</type>
+  <exclusions>
+    <exclusion>
+      <artifactId>activation</artifactId>
+      <groupId>javax.activation</groupId>
+    </exclusion>
+  </exclusions>
+</dependency>
+上面配置指定该项目依赖于mail.jar，由于Maven的依赖具有传递性，
+因此Maven会自动将mail.jar以来的activation.jar也依赖进来。
+为了将activation.jar排除出去，即可进行如上面配置文件所示的配置
+
+在struts2的pom.xml中的<dependencies>中添加：
+<dependency>
+  <groupId>org.apache.struts</groupId>
+  <artifactId>struts2-core</artifactId>
+  <!-- 此处指定依赖的Struts 2版本 -->
+  <version>2.5.13</version>
+</dependency>
+
+进入pom.xml文件路径，执行：
+> mvn package
+即可完成依赖添加

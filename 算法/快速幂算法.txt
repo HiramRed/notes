@@ -1,0 +1,101 @@
+write by : Hiram
+time : 2019-11-25
+
+参考：https://blog.csdn.net/qq_19782019/article/details/85621386#comments
+
+问题描述：
+	求A^B的最后三位数表示的整数（'^'为次方，不是异或）
+
+
+暴力算法：
+public static long violenceFunction(long num, long pow){
+	if(pow == 0){
+		return 1;
+	}
+	long result = num;
+	for(long i = 1; i < pow; i ++){
+		result *= num;
+	}
+	return result % 1000;
+}
+
+暴力算法的时间复杂度为O(N)，计算时间与指数呈爆炸性增长，pow越大，计算时间更长，所以需要简化。
+ps:暴力算法有一个致命的缺点：若底数过大，再次计算后可能造成位溢出，导致结果有误
+
+取模的一些通式算法：
+1.(a + b) % c = ((a % c) + (b % c)) % c
+2.(a * b) % c = ((a % c) * (b % c)) % c
+3.(a - b) % c = ((a % c) - (b % c)) % c
+
+因为次方算法只考虑乘，所以只看算式2，得到以下算法：
+
+public static long normalFunction(long num, long pow){
+	if(pow == 0){
+		return 1;
+	}
+	long result = num;
+	long d = num % 1000;
+	for(long i = 1; i < pow; i ++){
+		result %= 1000;
+		result *= d;
+	}
+	return result % 1000;
+}
+
+很明显这种方法相较于暴力算法更优化，而且不会有位溢出的风险，
+但其效果依然不尽人意，所以有了下面的快速幂算法。
+
+先看一个简单的例子：
+3 ^ 10 = 3 * 3 * 3 * 3 * 3 * 3 * 3 * 3 * 3 * 3
+3 ^ 10 = (3 * 3)*(3 * 3)*(3 * 3)*(3 * 3)*...
+3 ^ 10 = (3 * 3) ^ 5
+3 ^ 10 = 9 ^ 5
+可以发现到这里指数减少了一半，底数进行了一次平方，相较于原来的N次计算直接减少了一半。
+而现在指数变成了5，无法继续强行/2，所以可以进行以下操作：
+9 ^ 5 = (9 ^ 4) * 9
+9 ^ 5 = (9 * 9) ^ 2 * 9
+9 ^ 5 = (81 ^ 2) * 9
+9 ^ 5 = (81 ^ 1) * (81 ^ 0) * 9
+9 ^ 5 = 6561 * 1 * 9
+将指数-1后，从底数中抽出一个次方，结果不变，还能继续对指数进行/2操作，直到底数变为1
+代码：
+public static long fastFunction(long num, long pow) {
+	if (pow == 0) {
+		return 1;
+	}
+	long d = num % 1000;	//取还未平方过的底数，事先取模1000
+	long result = 1;
+	while (pow > 0) {
+		if ((pow % 2) == 0) {	//如果是偶数
+			pow /= 2;		//指数/2
+			d = d * d % 1000;	//底数变成原来的平方，因为取模公式2，所以在结果上再%1000
+		} else {	
+			pow --;		//底数-1，变成偶数
+			//将抽出来的一个次方乘入结果，并%1000
+			//若指数为1，最后抽出次方后留下的(底数 ^ 0)可以忽略计算
+			result = result * d % 1000;		
+			pow /= 2;	//以下为指数是偶数时的重复操作
+			d = d * d % 1000;
+		}
+	}
+	return result;
+}
+
+如果对方法传入巨大的数字并计时的话，可以发现这个方法速度直接提到了毫秒级。
+但可以发现这个方法不仅有重复的代码，还有很多地方可以进行优化，进一步提升代码执行速度：
+public static long finalFastFunction(long num, long pow){
+	if (pow == 0) {
+		return 1;
+	}
+	long d = num % 1000;
+	long result = 1;
+	while(pow > 0){
+		if((pow & 0x01) == 1){	//如果是奇数
+			// 因为奇数/2 = (奇数-1)/2，所以当指数为奇数时直接/2，不需要-1
+			result = (result * d) % 1000;
+		}
+		pow >>= 1;
+		d = (d * d) % 1000;
+	}
+	return result;
+}

@@ -1,0 +1,97 @@
+Maven采用了"约定优于配置(Convention over Configuration, Coc)"的原则，
+只要将项目的源文件按Maven要求的规范组织，并提供pom.xml，即可编译、运行
+Maven主要约定有如下几条：
+
+> ${basedir}
+    存放pom.xml和所有的子目录
+
+> ${basedir}/src/main/java
+    项目java源代码
+
+> ${basedir}/src/main/resources
+    项目资源，如property文件，springmvc.xml
+
+> ${basedir}/src/test/java
+    项目测试类，如Junit代码
+
+> ${basedir}/src/test/resources
+    测试用资源
+
+> ${basedir}/src/main/webapp/WEB-INF
+    web应用文件目录，web项目信息，如web.xml、本地图片、jsp视图
+
+> ${basedir}/target
+    打包输出目录
+
+> ${basedir}/target/classes
+    编译输出目录
+
+> ${basedir}/target/test-classes
+    测试编译输出目录
+
+
+Maven的生命周期(lifecycle)
+生命周期是指Maven构建项目包含多个有序的阶段(phase)，
+Maven可以支持许多不同的生命周期，最常用的是Maven默认的生命周期
+Maven执行生命周期一个或多个阶段命令格式：
+> mvn <phase1> <phase2>...
+当使用命令执行生命周期时，Maven会从该周期第一个阶段开始，直至命令指定的阶段
+
+Maven包含三个基本生命周期：
+> clean
+> default
+> site
+
+clean用于在构建项目之前进行一些处理工作，该生命周期包含三个核心阶段：
+> pre-clean: 在构建之前预清理
+> clean: 执行清理
+> post-clean: 最后清理
+
+default生命周期核心阶段：
+> compile: 编译项目
+> test: 单元测试
+> package: 项目打包
+> install: 安装到本地仓库
+> deploy: 部署到远程仓库
+实际Maven默认生命周期包含如下阶段：
+> validate: 验证项目是否正确
+> generate-sources: 生成源代码
+> process-sources: 处理源代码
+> generate-resources: 生成项目所需的资源文件
+> process-resources: 复制资源文件至目标目录
+> compile: 编译项目源代码
+> process-classes: 处理编译生成的文件
+> generate-test-sources: 生成测试源代码
+> process-test-sources: 处理测试源代码
+> generate-test-resources: 生成测试的资源文件
+> process-test-resources: 复制测试的资源文件至测试目标目录
+
+site生命周期用于生成项目报告站点、发布站点，该生命周期核心阶段：
+> pre-site: 生成站点之前做验证
+> site: 生成站点
+> post-site: 生成站点之后做验证
+> site-deploy: 发布站点到远程服务器
+
+
+进入pom.xml所在路径，执行：
+> mvn post-site
+第一次执行时会不断下载文件，执行成功后目录下会多出一个target，包含site子目录
+若报错：org.apache.maven.doxia.siterenderer.DocumentContent
+则在pom.xml中添加：
+<build>
+  <pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+      </plugin>
+    </plugins>
+  </pluginManagement>
+</build>
+

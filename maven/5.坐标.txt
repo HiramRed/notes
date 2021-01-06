@@ -1,0 +1,11 @@
+Maven的坐标(coordinate)
+
+POM需要为项目提供一个唯一标识符，这个标识被称为Maven坐标，坐标由4个元素组成
+> groupId: 该项目的开发者的域名
+> artifactId: 指定项目名
+> package: 指定项目打包的类型
+> version: 指定项目的版本
+
+Maven坐标通常使用英文冒号作为分隔符来书写，
+以groupId:artifactId:packaging:version格式书写。
+例如priv.xl:test:jar:1.0-SNAPSHOT

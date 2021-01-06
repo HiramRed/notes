@@ -1,0 +1,42 @@
+ ** 在正常(Normal)模式下，可以按下 x 键来删除光标所在位置的字符。**
+参照下面的句子修改上面的句子，使上下一致：(配合w、e、0、$、b、B等移动指令来移动光标，提高速度)
+
+Great miinds haave purrpose, oothers havee wisshes.
+Great minds have purpose, others have wishes.
+
+If you fiind aa path wiith noo obsttaclles, it prrobabbly dooesn’t leead annywhere.
+If you find a path with no obstacles, it probably doesn’t lead anywhere.
+
+Sommmetimes yoour pllans don’t wwwork out bbecause God haas betterr ones.
+Sometimes your plans don’t work out because God has better ones.
+
+You caan’t have aa better tomorrow if yyou doon’t sttop thinking aboout yesteerday.
+You can’t have a better tomorrow if you don’t stop thinking about yesterday.
+
+
+
+
+    ** 输入 dw 可以从光标处删除至一个单字/单词的末尾。**
+
+  练习：搜索并删除下列句子中的“”HAHA“”（不区分大小写）
+
+Great minds have HAHa purpose, others hAHA have wishes.
+
+If you find a path with no HaHA obstacles, it probably HAHA doesn’t lead anywhere.
+
+Sometimes HAaA your plans don’t work out because HAHA God has better ones.
+
+You can’t have a better HaHA tomorrow if you don’t stop thinking HAhA about yesterday. 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+   ** 输入 d$ 从当前光标删除到行末,d^从当前光标到行首**
+
+    练习：删除每行中第一个，后的内容，删除后通过撤销恢复原状，然后删除每一行第一个，前的内容。
+
+   Somebody typed the end of this line twice, end of this line twice.
+
+   Great minds have purpose, others have wishes.
+
+   If you find a path with no obstacles, it probably doesn’t lead anywhere.

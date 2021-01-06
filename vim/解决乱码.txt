@@ -2,3 +2,18 @@
 :set fenc=	-> 转换当前文本为指定编码
 :set enc=	-> 显示当前文本为指定编码
 :e ++enc=utf-8	-> 以utf-8编码方式重新加载文件
+<<<<<<< HEAD
+
+append at date 2020/12/14:
+参考文档：https://blog.csdn.net/sws9999/article/details/6088645
+
+只是修改文件显示编码：
+    set encoding=utf-8
+
+修改文件保存编码：
+    set fileencoding=utf-8
+
+设置文件打开时检索编码的顺序：
+    set fileencodings=utf-8,Unicode,ucs-bom,gb18030,gbk,gb2312,cp936,latin1:
+=======
+>>>>>>> 9568551efaaa9697034798f8ee617c44ed2692ad

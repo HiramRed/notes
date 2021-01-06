@@ -1,0 +1,155 @@
+﻿效率较高的方法：
+/**
+ *@return 数字长度+符号位长度
+ *
+ */
+int getSize(int num){
+    int d = 1; //记录符号位长度
+    if(num >= 0){
+	//这里将数字转成负数是因为如果转成正数int最小值会溢出
+	num = -num; 
+	d = 0; //正数符号位长度0
+    }	
+    int p = -10;
+    for(int i = 1; i < 10; i ++){  //常规判断长度方法
+	if(num > p)
+	    return i + d;
+	p *= 10;
+    }
+    return 10 + d; //判断到第九位就不需要继续了，肯定是十位
+}
+
+
+测试代码：
+
+public class Main {
+    public static void main(String[] args){
+        doMain();
+    }
+
+    private static void doMain(){
+        List<Runnable> l = new ArrayList<>();
+        ThreadPoolExecutor exec = new ThreadPoolExecutor(3,4,
+                1,TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(10),
+                new ThreadPoolExecutor.DiscardPolicy());
+        CallBack call = new CallBack() {
+
+            private int time = 0;
+
+            @Override
+            public void shutdown() {
+                time ++;
+                if(time >= l.size())
+                    exec.shutdown();
+            }
+        };
+        l.add(new Test1(call));
+        l.add(new Test2(call));
+        l.add(new Test3(call));
+        for(Runnable r : l){
+            exec.execute(r);
+        }
+    }
+}
+
+interface CallBack{
+    void shutdown();
+}
+
+class Test1 implements Runnable{
+
+    private final int[] sizeTable = {9,99,999,9999,99999,999999,9999999,99999999,999999999,Integer.MAX_VALUE};
+    private CallBack call;
+
+    public Test1(CallBack call){this.call = call;};
+
+    @Override
+    public void run() {
+        int i;
+        long start = System.currentTimeMillis();
+
+        for(i = 0; i < Integer.MAX_VALUE; i ++){
+            getSize(i);
+        }
+
+        System.out.println("Test1 计算" + i + "次花费：" + (System.currentTimeMillis() - start) + "ms");
+        call.shutdown();
+    }
+
+    public int getSize(int num){
+//        if(num < 0)
+//            num = -num;
+        for(int i = 0;;i ++){
+            if(num <= sizeTable[i])
+                return i + 1;
+        }
+    }
+}
+
+class Test2 implements Runnable{
+
+    private CallBack call;
+
+    public Test2(CallBack call){this.call = call;}
+
+    @Override
+    public void run() {
+        long start = System.currentTimeMillis();
+        int i;
+        for(i = 0;i < Integer.MAX_VALUE;i ++){
+            getSize(i);
+        }
+        System.out.println("Test2 计算" + i + "次花费时间：" + (System.currentTimeMillis() - start) + "ms");
+        call.shutdown();
+    }
+
+    public int getSize(int num){
+        int d = 1;
+        if(num >= 0){
+            num = -num;
+            d = 0;
+        }
+        for(int i = 1; i < 10;i ++){
+            if(num > -10)
+                return i + d;
+            else
+                num /= 10;
+        }
+        return 10 + d;
+    }
+}
+
+class Test3 implements Runnable{
+
+    private CallBack call;
+
+    public Test3(CallBack call){this.call = call;}
+
+    @Override
+    public void run() {
+        int i;
+        long start = System.currentTimeMillis();
+        for(i = 0;i < Integer.MAX_VALUE;i ++){
+            getSize(i);
+        }
+        System.out.println("Test3 计算" + i + "次花费：" + (System.currentTimeMillis() - start) + "ms");
+        call.shutdown();
+    }
+
+    public int getSize(int num){
+        int d = 1;
+        if( num >= 0){
+            num = -num;
+            d = 0;
+        }
+        int p = -10;
+        for(int i = 1;i < 10;i ++){
+            if(num > p){
+                return i + d;
+            }
+            p *= 10;
+        }
+        return 10 + d;
+    }
+}

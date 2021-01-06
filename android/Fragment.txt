@@ -1,0 +1,85 @@
+Fragment生命周期：
+    onAttach()：Fragment和Activity相关联时调用。
+        可以通过该方法获取Activity引用，还可以通过getArguments()获取参数。
+
+    onCreate()：Fragment被创建时调用。
+
+    onCreateView()：创建Fragment的布局。
+
+    onActivityCreated()：当Activity完成onCreate()时调用。
+
+    onStart()：当Fragment可见时调用。
+
+    onResume()：当Fragment可见且可交互时调用。
+
+    onPause()：当Fragment不可交互但可见时调用。
+
+    onStop()：当Fragment不可见时调用。
+
+    onDestroyView()：当Fragment的UI从视图结构中移除时调用。
+
+    onDestroy()：销毁Fragment时调用。
+
+    onDetach()：当Fragment和Activity解除关联时调用。
+
+
+静态添加Fragment到Activity布局：
+    1.添加Fragment的布局文件fragment1.xml
+
+    2.添加新类继承Fragment
+        // 尽可能继承support.v4.app下的Fragment
+        public class Fragment1 extends Fragment {
+            onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+                return inflater.inflate(R.layout.fragment1,
+                        container, false);
+            }
+        }
+
+    3.Activity主布局中添加：
+        <fragment
+            android:id="@+id/fragment1"
+            android:name="Fragment1的包路径"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+动态添加Fragment到Activity布局：
+    在主界面布局文件中添加一个空布局并+id
+        <FrameLayout
+            android:id="@+id/frame1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    在Activity中添加：
+        FragmentMamager fManager = getSupportFragmentManager();
+        Fragment f1 = new Fragment1();
+        FragmentTransaction trans = fManager.beginTransaction();
+        trans.replace(R.id.frame1, f);
+        trans.commit();
+
+
+动态添加常用类：
+    FragmentManager
+        " 管理Activity中的Activity，app包中使用getFragmentManager(),
+        " v4包中使用getSupportFragmentManager()
+    FragmentTransaction:
+        " 事务，用于添加，移除，替换fragment
+        " 使用FragmentManager对象的beginTransaction()获取
+    transaction.add():
+        " 往Activity中添加一个fragment
+    transaction.remove():
+        " 从Activity中移除一个fragment
+        " 如果被移除的fragment没有添加到回退栈，这个fragment实例将被销毁
+    transaction.replace():
+        " 替换当前fragment，实际为先remove在add
+    transaction.hide():
+        " 隐藏当前fragment，不销毁
+    transaction.show():
+        " 显示之前隐藏的fragment
+    transaction.detach():
+        " 将fragment从UI中移除，不销毁，由FragmentManager维护状态
+    transaction.attach():
+        " 重建view视频，附加到UI上显示
+
+

@@ -1,0 +1,44 @@
+折线图：
+    LineChart mLineChart;   // 折线图控件
+    
+    // 设置样式
+    mLineChart.setDrawGridBackground(false);    // 折线图是否绘制背景
+    mLineChart.setDrawBorders(false);           // 是否绘制边框
+    mLineChart.setTouchEnabled(false);          // 是否能触摸
+    mLineChart.setClickable(false);             // 是否能点击
+    mLineChart.getDescription().setEnabled(false);  // 去掉右下角的字
+
+
+    XAxis x = mLineChart.getXAxis();    // X轴对象
+    x.setAxisMinimum(0f);       // x轴最小值
+    x.setAsixMaximun(5f);       // x轴最大值(一定要设，否则数据从右边出来)
+    x.setPosition(XAxis.XAxisPosition.BOTTOM);      // x轴位置
+    x.setDrawGridLines(false);      // 是否绘制x轴线条
+    x.setGranularity(1f);   // x轴数据偏移量
+    x.setTextSize(12f);     // x轴字体大小
+    x.setValueFormatter(...);   // x轴数据自定义
+
+    YAxis left = mLineChart.getAxisLeft();
+    left.setAxisMinimum(0f);    // 左边y轴最小值
+    left.setDrawGridLines(false);
+    left.setTextSize(12f);
+
+    YAxis right = mLineChart.getAxisRight();
+    right.setAxisMinimum(0f);
+    right.setDrawGridLines(false);
+    right.setEnabled(false);    // 不绘制右边y轴
+
+
+    // 绑定数据
+    List<Entry> entries = new ArrayList<>();    // 坐标点集合
+    entries.add(new Entry(0f, 0f);  // 添加坐标点
+    entries.add(new Entry(1f, 1f);
+
+    LineDataSet dataSet = new LineDataSet(entries, "标题"); // 折线
+    LineData lineData = new LineData(dataSet);  // 折线图数据
+//    可添加多条数据
+//    List<ILineDataSet> dataSets = new ArrayList<>();
+//    dataSets.add(dataSet);
+//    LineData lineData = new LineData(dataSets);
+    mLineChart.setData(lineData);   // 绑定数据
+

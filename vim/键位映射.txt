@@ -1,0 +1,20 @@
+键盘映射语法：
+    :map 快捷键 目标指令
+
+不同模式下的键盘映射：
+命令    Normal  Visual    Operator Pending    InsertOnly    Command Line
+:map    y       y         y
+:nmap   y
+:vmap           y
+:omap                     y
+:map!                                         y             y
+:imap                                         y
+:cmap                                                       y
+
+功能键：
+    Tab    ->    <tab>
+    Alt    ->    <M>
+    Crtl   ->    <C>
+    Shift  ->    <S>
+    Space  ->    <Space>
+    Enter  ->    <CR>

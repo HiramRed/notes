@@ -1,0 +1,14 @@
+   ** 在正常(Normal)模式下，可以按下 i 键来在光标所在位置插入字符。**
+参照下面的句子修改上面的句子，使上下一致：((配合w、e、0、$、b、B等移动指令来移动光标，提高速度)
+
+Gat mi have pu, others h whes.
+Great minds have purpose, others have wishes.
+
+If y find a p wi no obsta, it pro doesn’t le an.
+If you find a path with no obstacles, it probably doesn’t lead anywhere.
+
+Som your pl don’t work out be God has be ones.
+Sometimes your plans don’t work out because God has better ones.
+
+You can’t h a b tom if you don’t stop thin ab yest.
+You can’t have a better tomorrow if you don’t stop thinking about yesterday.

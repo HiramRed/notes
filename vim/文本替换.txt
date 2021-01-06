@@ -1,0 +1,16 @@
+基本语法：
+    :s/old/new/
+        " 替换当前行第一个old为new
+    :s/old/new/g
+        " 替换当前行所有old为new
+    :n,m s/old/new/
+        " 替换n到m行第一个old为new
+    :n,m s/old/new/g
+        " 替换n到m行所有old为new
+    :%s/old/new/[g,c,n]
+        " 替换所有行[所有]old为new
+其中/可以使用#或者+来替代
+[g,c,n]分别表示：
+    g   " 全部
+    c   " 在删除前先询问
+    n   " 统计筛选数目

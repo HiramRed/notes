@@ -1,0 +1,12 @@
+设置字体样式:
+    :set guifont=*      " 预览所有字体，自行调整大小观看效果
+在_vimrc中添加：
+    set guifont=consolas:h14:cANSI:qDRAFT   " 目前个人在用的
+
+修改vim整体样式：
+    colorscheme 样式
+样式保存在.vim/colors/
+可以网上下载.vim样式并添加进colors路径，在.vimrc中添加语句
+
+设置提示高亮：
+    syntax enable

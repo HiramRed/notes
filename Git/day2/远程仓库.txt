@@ -1,0 +1,33 @@
+先创建SSH Key:
+    $ ssh-keygen -t rsa -C "邮件地址"
+.ssh文件会保存在指令窗口当前路径
+里面包含id_rsa私钥和id_rsa.pub公钥
+
+登录GitHub，打开Account settings，Add SSH Key，并输入公钥内容
+右上角点击+，New repository，并填写Repository name，其他默认，点击Create创建
+
+在本地的仓库下执行指令：
+    $ git remote add origin https://github.com/你的用户名/刚刚创建的仓库名.git
+origin这个参数可以自定义，为远程库的名字
+下一步将本地库的内容推送到远程库上：
+    $ git push -u origin master
+将本地内容推送至远程使用git push，master为本地分支名称
+查看本地分支名称：
+    $ git branch
+查看所有分支：
+    $ git branch -a
+查看远程分支：
+    $ git branch -r
+若无法获取远程分支就更新一下：
+    $ git fetch origin
+
+当本地文件被提交时，可以使用：
+    $ git push origin master
+来将最新修改提交至GitHub
+
+当有一个远程库需要克隆时：
+    $ git clone git@github.com:HiramRed/common.git
+git@github.com使用的是ssh协议
+第一次使用该协议时会警告，如果dns没解析错的话输入yes回车就好
+也可以使用https协议，填写https://github.com，不过听网上说会慢一点
+

@@ -1,0 +1,15 @@
+下载maven安装包并安装
+添加系统变量：M2_HOME，值为maven安装路径
+添加path：%M2_HOME%\bin;
+在%M2_HOME%/conf/settings.xml中的<mirrors>中添加:
+    <mirror>
+        <id>alimaven</id>
+        <name>aliyun maven</name>
+        <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        <mirrorOf>central</mirrorOf>        
+    </mirror>
+在cmd中执行mvn help:system
+会开始下载很多文件，最后输出:
+    System Properties
+    Environment Variables
+表示Maven安装成功

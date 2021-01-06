@@ -1,0 +1,28 @@
+Vim中的多窗口打开：
+    :new            " 新建一个未命名的窗口
+    :new name       " 新建一个名为name的文件
+
+横向窗口分割：
+    :spite name     " 在当前窗口上方打开name文件，并将原文件置于下方
+    :sp name        " 缩写
+纵向窗口分割:
+    :vsplit name    " 在当前窗口右边打开name文件，并将原文件置于左边
+    :vs name        " 缩写
+
+多窗口切换：
+    crtl + w + hjkl     " 向某个方向切换窗口
+    crtl + ww           " 多个窗口依次切换 
+
+多窗口调整：
+    :resize num         " 将窗口调整为num行
+    :res num            " 缩写
+    :vertical resize num    " 将窗口调整为num列
+    :vertical res num       " 缩写
+    
+    :res[+,-]num             " 将窗口增加/减少num行
+    :ver[+,-]tical res+num   " 将窗口增加/减少num列
+    
+多窗口关闭：
+    :q      " 退出当前所在窗口
+    :qa     " 退出所有窗口
+

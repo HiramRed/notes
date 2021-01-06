@@ -1,0 +1,46 @@
+求两数的公约数，将大的数取模小的数，若结果不为0（除不尽），则将小的数在与取模结果进行计算
+直到取模结果为0
+
+非常简单明了的示例方法：
+public int exampleFunction(int num1, int num2){	// 换做long也行
+	int max; // 两数中的最大数
+	int min; // 最小数
+	if(num1 >= num2) { // 判断最大数
+		max = num1;
+		min = num2;
+	}else{
+		max = num2;
+		min = num1;
+	}
+	int r = max % min; // 最大数与最小数取模
+	if(r == 0){ // 若取模结果为0，则返回最小数
+		return min;
+	}else{
+		return exampleFunction(min, r); // 将最小数与模再进行一次计算
+	}
+}
+
+// 高效方法
+// 这两个方法效率不相伯仲，但方法二代码量少
+public int commomDivisor(int num1, int num2){
+	int r;
+	if(num1 < num2){
+		num1 ^= num2;
+		num2 ^= num1;
+		num1 ^= num2;
+	}
+	while((r = num1 % num2) != 0){
+		num1 = num2;
+		num2 = r;
+	}
+	return num2;
+}
+
+public int commomDivisor(int num1, int num2){
+    int r;
+    while((r = num1 % num2) != 0){
+        num1 = num2;
+        num2 = r;
+    }
+    return num2;
+}

@@ -1,0 +1,40 @@
+Maven使用archetype插件创建项目，archetype插件包含以下目标(goal)
+    > archetype:generate: 使用指定原型创建一个Maven项目
+    > archetype:create-from-project: 使用已有的项目创建Maven项目
+    > archetype:crawl: 从仓库搜索原型
+
+
+命令参数使用-D选项指定，创建项目指令如下：
+> mvn archetype:generate -DinteractiveMode=false -DgroupId=priv.xl
+    -DartifactId=Test -Dpackage=priv.xl.test
+第一次执行后Maven会从网络下载各种文件，若网络状态不佳会导致失败，重试即可
+
+
+编译项目：进入pom.xml所在路径，执行：
+> mvn compile
+若第一次执行会从网络下载各种文件，下载完成后即可正常编译
+编译过程中可能会出现版本兼容问题，显示：
+    [ERROR] 不再支持源选项5。请使用7或更高版本
+    [ERROR] 不再支持目标选项5.请使用7或更高版本
+则只需要在pom.xml中增加maven的编译jdk版本：
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <java.version>13</java.version>
+        <maven.compiler.source>13</maven.compiler.source>
+        <maven.compiler.target>13</maven.compiler.target>
+    </properties>
+其中13是jdk版本，根据安装jdk版本修改
+
+编译完成后使用Maven的exec插件执行Java类：
+> mvn exec:java -Dexec.mainClass="priv.xl.test.App"
+若第一次执行会从网络下载各种文件，最终输出priv.xl.test.App中main()的结果
+
+
+
+实际上，Maven运行时pom.xml是根据设置组合来运行的，
+每个Maven项目的pom.xml都有一个上级pom.xml，
+当前项目的pom.xml的设置信息会被合并到上级pom.xml中，
+上级pom.xml（相当于Maven默认的pom.xml）定义了该项目大量的默认设置。
+查看实际起作用的pom.xml内容：
+> mvn help:effective-pom

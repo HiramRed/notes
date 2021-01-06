@@ -1,0 +1,35 @@
+获取View相对于父容器的位置:
+x, y轴（(0,0)位于View的最左上角）:
+    View.getX();
+    View.getY();
+
+left:   View.getLeft();
+    View左边框到父容器左边框距离
+    受View的margin和父容器padding影响
+
+top:    View.getTop();
+    View上边框到父容器上边框距离
+    受View的margin和父容器padding影响
+    
+right   View.getRight();
+    View右边框到父容器左边框距离
+    受View的margin和父容器padding影响
+
+bottom  View.getBottom();
+    View下边框到父容器左边框距e
+    受View的margin和父容器padding影响
+
+获取View在屏幕上的坐标：
+    int[] location = new int[2];
+    View.getLocationOnScreen(location);
+    int x = location[0];
+    int y = location[1];
+
+在OnTouchListener中：
+    获取触摸点相对于父容器的坐标：
+        float x = MotionEvent.getX();
+        float y = MotionEvent.getY();
+    获取触摸点相对于屏幕的坐标：
+        float rawX = MotionEvent.getRawX();
+        float rawY = MotionEvent.getRawY();
+
